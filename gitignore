@@ -1,0 +1,32 @@
+.env
+.env.local
+.env.dev
+.env.prod
+venv/
+.joblib
+new-env/
+env/
+.gitignore
+.DS_Store
+dataru-construction-0981065a44e9.json
+dataru-construction-f9ddacf0112f.json
+dataru-construction-114eadad149a.json
+static_collected/
+postgres_data/
+logfile
+.vscode/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+*.dll
+
+# Ignore node_modules and build files for React
+frontend/b2c/node_modules/
+frontend/b2c/build/
+frontend/b2b/node_modules/
+frontend/b2b/build/
+run_docker.sh
