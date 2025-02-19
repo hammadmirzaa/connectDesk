@@ -2,43 +2,22 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-# from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import login, authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
 
-from rest_framework.generics import GenericAPIView
-
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-
-from django.shortcuts import get_object_or_404
-
-
+# User List View
 class UserListView(APIView):
-    """ Get a list of users (GET) """
     def get(self, request):
         users = User.objects.values("id", "username")
         return Response({"users": list(users)}, status=status.HTTP_200_OK)
 
-
-class RegisterView(APIView):
-
-    @swagger_auto_schema(
-        operation_description="Register a new user",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=["username", "password"],
-            properties={
-                "username": openapi.Schema(type=openapi.TYPE_STRING, description="Username"),
-                "password": openapi.Schema(type=openapi.TYPE_STRING, description="Password"),
-            },
-        ),
-        responses={
-            201: openapi.Response("User registered successfully"),
-            400: openapi.Response("Invalid request"),
-        },
-    )
-
-
-    # """ Register a new user (POST) """
+# User Registration View
+@method_decorator(csrf_exempt, name='dispatch')
+class register_view(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -52,33 +31,27 @@ class RegisterView(APIView):
         User.objects.create_user(username=username, password=password)
         return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
 
+# User Login View
+@api_view(["POST"])
+def login_view(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
 
-class UpdateUserView(APIView):
+    if not username or not password:
+        return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(
-        operation_description="Update user profile",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "username": openapi.Schema(type=openapi.TYPE_STRING, description="New username"),
-                "password": openapi.Schema(type=openapi.TYPE_STRING, description="New password"),
-            },
-        ),
-        responses={
-            200: openapi.Response("User updated successfully"),
-            400: openapi.Response("Invalid request"),
-            401: openapi.Response("Unauthorized"),
-        },
-    )
+    user = authenticate(username=username, password=password)
 
-
-    def get(self, request, user_id):
-        """ Retrieve a user by ID (GET) """
-        user = get_object_or_404(User, id=user_id)
-        return Response({"id": user.id, "username": user.username}, status=status.HTTP_200_OK)
+    if user is not None:
+        login(request, user)
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key, "message": "Login successful"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
     
 
-    # """ Update an existing user completely (PUT) """
+# Update User View
+class UpdateUserView(APIView):
     def put(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
@@ -89,27 +62,8 @@ class UpdateUserView(APIView):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
+# Partial Update User View
 class PartialUpdateUserView(APIView):
-
-    @swagger_auto_schema(
-        operation_description="Update user profile",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "username": openapi.Schema(type=openapi.TYPE_STRING, description="New username"),
-                "password": openapi.Schema(type=openapi.TYPE_STRING, description="New password"),
-            },
-        ),
-        responses={
-            200: openapi.Response("User updated successfully"),
-            400: openapi.Response("Invalid request"),
-            401: openapi.Response("Unauthorized"),
-        },
-    )
-
-
-    # """ Partially update a user (PATCH) """
     def patch(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
@@ -122,9 +76,8 @@ class PartialUpdateUserView(APIView):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
+# Delete User View
 class DeleteUserView(APIView):
-    """ Delete a user (DELETE) """
     def delete(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
@@ -134,12 +87,5 @@ class DeleteUserView(APIView):
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class ProtectedView(APIView):
-#     """ Protected API that only authenticated users can access """
-#     permission_classes = [AllowAny]
-
-#     def get(self, request):
-#         return Response({"message": "This is a protected view"}, status=status.HTTP_200_OK)
-
-
-# Your Token: b5d94b349d1acf85f2f55679356c7f7e3b9c9b4f
+def base(request):
+    return render(request, "base.html")
