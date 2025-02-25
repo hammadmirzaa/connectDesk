@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import Bg from '../../assets/svg/BG.svg';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginForm = ({login}) => {
   const [formData, setFormData] = useState({
@@ -9,6 +9,7 @@ const LoginForm = ({login}) => {
     email:"",
     password:""
   })
+  const navigate = useNavigate()
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -16,19 +17,21 @@ const LoginForm = ({login}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formData)
+    navigate('/dashboard')
   };
   return (
     <div className="w-full  ">
     <div className="flex   ">
-      <div className="flex justify-center items-center h-screen">
-        <img
-          src={Bg}
-          alt="Background"
-          className="h-[100vh] w-[90rem] object-cover "
-        />
-      </div>
-      <div className="w-full flex justify-center items-center ">
-        <div className="h-[580px] w-[580px]  ">
+    <div className=" w-full ">
+    <img
+      src={Bg}
+      alt="Background"
+      className="w-full h-full object-cover"
+    />
+  </div>
+  
+      <div className="w-full flex justify-center  ">
+        <div className="h-[580px] w-[580px] pt-[6rem] ">
           <h1 className="text-left font-bold text-[3.3rem] mb-2 ">{ login ? "Sign In" : "Sign Up" }</h1>
           <p className="text-[1.2rem] w-[70%] text-gray-600 mb-2 ">
             ConnectDesk lets you organize tasks, track progress, and
@@ -41,11 +44,12 @@ const LoginForm = ({login}) => {
             flexDirection: "column", 
             gap: 2,
             borderRadius: 2,
+            paddingTop:'2rem'
           }}
         >
          { !login &&
           <>
-          <Typography variant="h6" >
+          <Typography variant="h6" sx={{fontSize:'16px'}} >
             Username
           </Typography>
           <TextField
@@ -53,13 +57,12 @@ const LoginForm = ({login}) => {
             name="username"
             value={formData.username}
             fullWidth
-            placeholder="Enter your Username"
             variant="outlined"
             onChange={handleChange}
             required
           />
         </>}
-          <Typography variant="h6" >
+          <Typography variant="h6" sx={{fontSize:'16px'}}  >
             Email address
           </Typography>
           <TextField
@@ -67,13 +70,12 @@ const LoginForm = ({login}) => {
             name="email"
             value={formData.email}
             fullWidth
-            placeholder="Enter your email"
             variant="outlined"
             onChange={handleChange}
             required
           />
     
-          <Typography variant="h6" >
+          <Typography variant="h6" sx={{fontSize:'16px'}} >
             Password
           </Typography>
           <TextField
@@ -81,7 +83,6 @@ const LoginForm = ({login}) => {
             name="password"
             value={formData.password}
             fullWidth
-            placeholder="Enter your password"
             variant="outlined"
             onChange={handleChange}
             required
