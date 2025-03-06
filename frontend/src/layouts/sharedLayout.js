@@ -1,15 +1,15 @@
-import React from "react";
-import Navbar from "../components/Navbar";
+// import React from "react";
+// import Navbar from "../components/navbar";
 
-const SharedLayout = ({ children }) => {
-  return (
-    <div>
-      <Navbar />
-      <main style={{ padding: "1rem" }}>
-        {children}
-      </main>
-    </div>
-  );
-};
+// const SharedLayout = ({ children }) => {
+//   return (
+//     <div  >
+//       <Navbar />
+//       <main  >
+//         {children}
+//       </main>
+//     </div>
+//   );
+// };
 
-export default SharedLayout;
+// export default SharedLayout;

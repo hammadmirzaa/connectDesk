@@ -1,0 +1,8 @@
+.react-multiple-carousel__arrow--left {
+    left: calc(1% + 1px);
+  }
+  
+  .react-multiple-carousel__arrow--right {
+    right: calc(6% + 1px);
+
+  }

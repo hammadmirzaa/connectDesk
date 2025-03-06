@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import SharedLayout from "../../navbar/index";
+import SharedLayout from "../../navbar";
 import {
-  History,
   ChatBubbleOutline,
+  Dashboard,
   FiberManualRecord,
+  History,
 } from "@mui/icons-material";
 import BoardBG from "../../../assets/png/board_bg.png";
 import CardCarousel from "../../ReUsableComponents/carousel";
 
-const Dashboard = () => {
+const Boards = () => {
   const [showArrows, setShowArrows] = useState(false);
 
   const boards = [
@@ -24,7 +25,6 @@ const Dashboard = () => {
     { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
     { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
   ];
-
   return (
     <SharedLayout>
       <div className="bg-[#ECEFF5] w-full p-20 overflow-hidden">
@@ -44,25 +44,36 @@ const Dashboard = () => {
         </div>
 
         <CardCarousel boards={boards} showArrows={showArrows} />
-
-        <div className="flex gap-1 items-center py-3">
-          <ChatBubbleOutline />
-          <h3 className="font-medium">Recent Chats</h3>
+        <button className="w-[28%] min-h-[125px] h-auto border rounded-lg bg-[#CECECE] flex flex-col items-center justify-center ">
+          <span className="text-[20px]"> + </span>
+          <span> Create New Board </span>
+        </button>
+        <div className="flex gap-1 items-center pt-8 pb-3">
+          <Dashboard />
+          <h3 className="font-medium">All Boards</h3>
         </div>
         <div className="w-[70%] max-h-[300px] overflow-y-auto">
           {boards.map((board, index) => (
             <div
               key={index}
-              className="flex items-center justify-between border-b border-[#bcbaba] mr-2 py-2 cursor-pointer"
+              className="flex items-center justify-between border-b border-[#bcbaba] mr-2 py-1.5 cursor-pointer"
             >
-              <div className="flex items-center gap-1">
-                <h3 className="text-base">{board.title}</h3>
-                <FiberManualRecord
-                  className="text-red-500"
-                  style={{ width: "10px" }}
-                />
+              <div className="flex items-center gap-4">
+                <h3 className="text-base font-medium">{board.title}</h3>
+                <p className="text-xs">{board.date}</p>
               </div>
-              <p className="text-xs">{board.date}</p>
+              <div className="flex items-center gap-4">
+              <button
+              className="border-blue-600 border text-black p-2 rounded-lg text-sm"
+            >
+              Chats
+            </button>
+              <button
+              className="bg-blue-500 text-white p-2 rounded-lg text-sm"
+            >
+              Share
+            </button>
+              </div>
             </div>
           ))}
         </div>
@@ -71,4 +82,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Boards;
