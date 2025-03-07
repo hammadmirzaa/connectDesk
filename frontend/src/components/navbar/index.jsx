@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 const SharedLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation()
-  const [isActive, setIsActive] = useState(true);
   const links = [
     { name: "Home", link: "/dashboard" },
     { name: "Boards", link: "/boards" },

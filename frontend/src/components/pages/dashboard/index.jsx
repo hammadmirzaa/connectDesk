@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   return (
     <SharedLayout>
-      <div className="bg-[#ECEFF5] w-full p-20 overflow-hidden">
+      <div className="bg-[#ECEFF5] w-full h-[100vh]  p-20 overflow-y-auto scrollbar-hide ">
         <div className="flex justify-between items-center w-[95%] ">
           <div className="flex gap-1 items-center  ">
             <History />
