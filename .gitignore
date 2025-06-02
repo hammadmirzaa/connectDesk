@@ -8,13 +8,9 @@ new-env/
 env/
 .gitignore
 .DS_Store
-dataru-construction-0981065a44e9.json
-dataru-construction-f9ddacf0112f.json
-dataru-construction-114eadad149a.json
-static_collected/
-postgres_data/
 logfile
 .vscode/
+backend/venv
 
 # Byte-compiled / optimized / DLL files
 *.pyc

@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import Bg from '../../assets/svg/BG.svg';
 import { Link, useNavigate } from "react-router-dom";
+import { UseAuthContext } from "../../context/AuthContext";
 
 const LoginForm = ({login}) => {
+  const{loginUser, registerUser} = UseAuthContext()
   const [formData, setFormData] = useState({
     username:"",
     email:"",
@@ -14,11 +16,29 @@ const LoginForm = ({login}) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData)
-    navigate('/dashboard')
+  
+    if (login) {
+      const result = await loginUser(formData.username, formData.password);
+      if (result.success) {
+        console.log("Logged in:", result.data);
+        navigate("/dashboard");
+      } else {
+        alert("Login failed: " + result.error);
+      }
+    } else {
+      const result = await registerUser(formData.username, formData.email, formData.password);
+      if (result.success) {
+        console.log("Signed up:", result.data);
+        navigate("/dashboard"); 
+      } else {
+        alert("Signup failed: " + result.error);
+      }
+    }
   };
+  
   return (
     <div className="w-full  ">
     <div className="flex   ">
@@ -47,8 +67,8 @@ const LoginForm = ({login}) => {
             paddingTop:'2rem'
           }}
         >
-         { !login &&
-          <>
+        
+
           <Typography variant="h6" sx={{fontSize:'16px'}} >
             Username
           </Typography>
@@ -61,8 +81,10 @@ const LoginForm = ({login}) => {
             onChange={handleChange}
             required
           />
-        </>}
-          <Typography variant="h6" sx={{fontSize:'16px'}}  >
+
+         {!login &&
+          <> 
+           <Typography variant="h6" sx={{fontSize:'16px'}}  >
             Email address
           </Typography>
           <TextField
@@ -74,6 +96,8 @@ const LoginForm = ({login}) => {
             onChange={handleChange}
             required
           />
+        </>
+        }
     
           <Typography variant="h6" sx={{fontSize:'16px'}} >
             Password

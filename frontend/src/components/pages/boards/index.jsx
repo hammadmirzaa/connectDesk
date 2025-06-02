@@ -8,12 +8,17 @@ import {
 } from "@mui/icons-material";
 import BoardBG from "../../../assets/png/board_bg.png";
 import CardCarousel from "../../ReUsableComponents/carousel";
+import { UseGlobalContext } from "../../../context/GlobalContext";
+import CreateBoardForm from "./createBoard";
 
 const Boards = () => {
   const [showArrows, setShowArrows] = useState(false);
+  const { showBoardForm, setShowBoardForm, boardState, setBoardState, saveBoards } = UseGlobalContext();
+
+  console.log(saveBoards, "boardState");  
 
   const boards = [
-    { title: "FYP", img: BoardBG, date: "Oct 22,2024" },
+    { title: boardState.title, img: BoardBG, date: "Oct 22,2024" },
     { title: "Project A", img: BoardBG, date: "Nov 10,2024" },
     { title: "Task Management", img: BoardBG, date: "Dec 05,2024" },
     { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
@@ -44,7 +49,7 @@ const Boards = () => {
         </div>
 
         <CardCarousel boards={boards} showArrows={showArrows} />
-        <button className="w-[28%] min-h-[125px] h-auto border rounded-lg bg-[#CECECE] flex flex-col items-center justify-center ">
+        <button className="w-[28%] min-h-[125px] h-auto border rounded-lg bg-[#CECECE] flex flex-col items-center justify-center " onClick={()=>setShowBoardForm(true)} >
           <span className="text-[20px]"> + </span>
           <span> Create New Board </span>
         </button>
@@ -77,6 +82,7 @@ const Boards = () => {
             </div>
           ))}
         </div>
+
       </div>
     </SharedLayout>
   );

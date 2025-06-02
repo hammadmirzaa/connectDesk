@@ -7,11 +7,13 @@ import './App.css'
 import Boards from "./components/pages/boards";
 import Chats from "./components/pages/chats";
 import ChatApp from "./components/pages/chats/chatApp";
+import Kanban from "./components/pages/Kanban/Kanban";
+import HomePage from "./components/pages/homePage";
 
 const App = () => {
   return (
     <Router>
-      <div>
+      <div className="" >
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -19,6 +21,8 @@ const App = () => {
           <Route path="/boards" element={<Boards />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:chatId" element={<ChatApp />} />
+          <Route path="/kanban" element={<Kanban/>}/>
+          <Route path="/home" element={<HomePage/>}/>
         </Routes>
       </div>
     </Router>

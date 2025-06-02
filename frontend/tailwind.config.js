@@ -1,10 +1,15 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}", // Ensure this includes your components
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        mainBackgroundColor: "#36454F", 
+        columnBackgroundColor: "#141414", 
+      },
+    },
   },
   plugins: [],
 }

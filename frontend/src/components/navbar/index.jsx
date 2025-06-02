@@ -2,30 +2,35 @@ import { Button } from "@mui/material";
 import React, { useState } from "react";
 import { Search, Notifications, AccountCircle } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
+import CreateBoardForm from "../pages/boards/createBoard";
+import { UseGlobalContext } from "../../context/GlobalContext";
 const SharedLayout = ({ children }) => {
   const navigate = useNavigate();
-  const location = useLocation()
+  const location = useLocation();
   const [isActive, setIsActive] = useState(true);
+  const { showBoardForm, setShowBoardForm } = UseGlobalContext();
   const links = [
     { name: "Home", link: "/dashboard" },
     { name: "Boards", link: "/boards" },
     { name: "Chats", link: "/chats" },
   ];
   return (
-    <div>
-      <div className="flex justify-between py-4 px-12 ">
+    <div className=" h-[80vh] " >
+      <div className="flex justify-between py-2 px-6 ">
         <div className="flex list-none justify-center gap-12 items-center  ">
           <h1 className=" text-[24px] w-[10rem] font-bold ">Connect Desk</h1>
           <li> Boards </li>
           <li> Chats </li>
           <li> Workspaces </li>
           <Button
+          onClick={() => setShowBoardForm(true)}
             variant="contained"
             color="primary"
-            sx={{ padding: "10px 24px", borderRadius: "8px", fontSize: "12px" }}
+            sx={{ padding: "10px 24px", borderRadius: "8px", fontSize: "12px", position:'relative' }}
           >
             Create
           </Button>
+          {showBoardForm && <CreateBoardForm  />}
         </div>
         <div className="flex items-center gap-4 p-2">
           <div className="flex items-center border-b border-gray-400 px-2">
@@ -41,15 +46,16 @@ const SharedLayout = ({ children }) => {
         </div>
       </div>
       <div className="flex">
-        <div className="py-[126px] w-[20%] h-screen flex list-none flex-col  gap-3 px-12 ">
+        <div className="py-[126px] w-[15%] h-[91vh] flex list-none flex-col  gap-3 px-8 ">
           <div className={`ml-1 flex flex-col gap-3  `}>
             {links.map((link, index) => {
-              const isActive = location.pathname === link.link
+              const isActive = location.pathname === link.link;
               return (
                 <li
-                  className={`cursor-pointer ${isActive? "text-blue-600 font-medium ":"  " } `}
-                  onClick={() => navigate(link.link)
-                  }
+                  className={`cursor-pointer ${
+                    isActive ? "text-blue-600 font-medium " : "  "
+                  } `}
+                  onClick={() => navigate(link.link)}
                 >
                   {link.name}
                 </li>
