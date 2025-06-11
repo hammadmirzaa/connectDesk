@@ -4,35 +4,56 @@ import { Search, Notifications, AccountCircle } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import CreateBoardForm from "../pages/boards/createBoard";
 import { UseGlobalContext } from "../../context/GlobalContext";
+
 const SharedLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isActive, setIsActive] = useState(true);
   const { showBoardForm, setShowBoardForm } = UseGlobalContext();
+
   const links = [
     { name: "Home", link: "/dashboard" },
     { name: "Boards", link: "/boards" },
     { name: "Chats", link: "/chats" },
   ];
+
   return (
-    <div className=" h-[80vh] " >
-      <div className="flex justify-between py-2 px-6 ">
-        <div className="flex list-none justify-center gap-12 items-center  ">
-          <h1 className=" text-[24px] w-[10rem] font-bold ">Connect Desk</h1>
-          <li> Boards </li>
-          <li> Chats </li>
-          <li> Workspaces </li>
+    <div className="h-screen flex flex-col">
+      <div className="flex justify-between items-center px-6 py-2 bg-white shadow-sm sticky top-0 z-10 h-[64px]">
+        <div className="flex items-center gap-12">
+          <h1 className="text-[24px] w-[10rem] font-bold">Connect Desk</h1>
+          <ul className="flex items-center gap-8 list-none">
+            {links.map((link) => {
+              const isActive = location.pathname === link.link;
+              return (
+                <li
+                  key={link.name}
+                  onClick={() => navigate(link.link)}
+                  className={`cursor-pointer ${
+                    isActive ? "text-blue-600 font-medium" : ""
+                  }`}
+                >
+                  {link.name}
+                </li>
+              );
+            })}
+          </ul>
           <Button
-          onClick={() => setShowBoardForm(true)}
+            onClick={() => setShowBoardForm(true)}
             variant="contained"
             color="primary"
-            sx={{ padding: "10px 24px", borderRadius: "8px", fontSize: "12px", position:'relative' }}
+            sx={{
+              padding: "10px 24px",
+              borderRadius: "8px",
+              fontSize: "12px",
+              position: "relative",
+            }}
           >
             Create
           </Button>
-          {showBoardForm && <CreateBoardForm  />}
+          {showBoardForm && <CreateBoardForm />}
         </div>
-        <div className="flex items-center gap-4 p-2">
+
+        <div className="flex items-center gap-4">
           <div className="flex items-center border-b border-gray-400 px-2">
             <input
               type="text"
@@ -45,28 +66,8 @@ const SharedLayout = ({ children }) => {
           <AccountCircle className="text-gray-600 cursor-pointer" />
         </div>
       </div>
-      <div className="flex">
-        <div className="py-[126px] w-[15%] h-[91vh] flex list-none flex-col  gap-3 px-8 ">
-          <div className={`ml-1 flex flex-col gap-3  `}>
-            {links.map((link, index) => {
-              const isActive = location.pathname === link.link;
-              return (
-                <li
-                  className={`cursor-pointer ${
-                    isActive ? "text-blue-600 font-medium " : "  "
-                  } `}
-                  onClick={() => navigate(link.link)}
-                >
-                  {link.name}
-                </li>
-              );
-            })}
-          </div>
-          <select name="Workspaces" id="" className="">
-            <option value="workspace1">Workspace 1</option>
-            <option value="workspace2">Workspace 2</option>
-          </select>
-        </div>
+
+      <div className="flex-1 overflow-y-auto  bg-gray-50">
         {children}
       </div>
     </div>

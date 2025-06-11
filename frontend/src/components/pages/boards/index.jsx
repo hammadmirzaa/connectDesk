@@ -10,26 +10,19 @@ import BoardBG from "../../../assets/png/board_bg.png";
 import CardCarousel from "../../ReUsableComponents/carousel";
 import { UseGlobalContext } from "../../../context/GlobalContext";
 import CreateBoardForm from "./createBoard";
+import { UseBoardsContext } from "../../../context/BoardsContext";
 
 const Boards = () => {
   const [showArrows, setShowArrows] = useState(false);
-  const { showBoardForm, setShowBoardForm, boardState, setBoardState, saveBoards } = UseGlobalContext();
+  const {
+    showBoardForm,
+    setShowBoardForm,
+    boardState,
+    setBoardState,
+    saveBoards,
+  } = UseGlobalContext();
+  const { boards } = UseBoardsContext();
 
-  console.log(saveBoards, "boardState");  
-
-  const boards = [
-    { title: boardState.title, img: BoardBG, date: "Oct 22,2024" },
-    { title: "Project A", img: BoardBG, date: "Nov 10,2024" },
-    { title: "Task Management", img: BoardBG, date: "Dec 05,2024" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-  ];
   return (
     <SharedLayout>
       <div className="bg-[#ECEFF5] w-full p-20 overflow-hidden">
@@ -49,7 +42,10 @@ const Boards = () => {
         </div>
 
         <CardCarousel boards={boards} showArrows={showArrows} />
-        <button className="w-[28%] min-h-[125px] h-auto border rounded-lg bg-[#CECECE] flex flex-col items-center justify-center " onClick={()=>setShowBoardForm(true)} >
+        <button
+          className="w-[28%] min-h-[125px] h-auto border rounded-lg bg-[#CECECE] flex flex-col items-center justify-center "
+          onClick={() => setShowBoardForm(true)}
+        >
           <span className="text-[20px]"> + </span>
           <span> Create New Board </span>
         </button>
@@ -65,24 +61,27 @@ const Boards = () => {
             >
               <div className="flex items-center gap-4">
                 <h3 className="text-base font-medium">{board.title}</h3>
-                <p className="text-xs">{board.date}</p>
+                <p className="text-xs">
+                  {new Date(board.created_at)
+                    .toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                    .replace(",", "")}
+                </p>
               </div>
               <div className="flex items-center gap-4">
-              <button
-              className="border-blue-600 border text-black p-2 rounded-lg text-sm"
-            >
-              Chats
-            </button>
-              <button
-              className="bg-blue-500 text-white p-2 rounded-lg text-sm"
-            >
-              Share
-            </button>
+                <button className="border-blue-600 border text-black p-2 rounded-lg text-sm">
+                  Chats
+                </button>
+                <button className="bg-blue-500 text-white p-2 rounded-lg text-sm">
+                  Share
+                </button>
               </div>
             </div>
           ))}
         </div>
-
       </div>
     </SharedLayout>
   );

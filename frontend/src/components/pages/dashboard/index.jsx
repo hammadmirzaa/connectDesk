@@ -7,23 +7,11 @@ import {
 } from "@mui/icons-material";
 import BoardBG from "../../../assets/png/board_bg.png";
 import CardCarousel from "../../ReUsableComponents/carousel";
+import { UseBoardsContext } from "../../../context/BoardsContext";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
-
-  const boards = [
-    { title: "FYP", img: BoardBG, date: "Oct 22,2024" },
-    { title: "Project A", img: BoardBG, date: "Nov 10,2024" },
-    { title: "Task Management", img: BoardBG, date: "Dec 05,2024" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-    { title: "E-commerce", img: BoardBG, date: "Jan 15,2025" },
-    { title: "AI Research", img: BoardBG, date: "Feb 28,2025" },
-  ];
+  const { boards } = UseBoardsContext();
 
   return (
     <SharedLayout>

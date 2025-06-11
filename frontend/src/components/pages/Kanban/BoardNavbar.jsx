@@ -1,9 +1,11 @@
 import React from "react";
 import { UserRound, Share2, Lock, Star, LayoutGrid, ChevronDown, Filter, Zap, Send } from "lucide-react";
 import { UseGlobalContext } from "../../../context/GlobalContext";
+import { UseBoardsContext } from "../../../context/BoardsContext";
 
-const BoardNavbar = ({ onSave, onLoad, savedBoards }) => {
+const BoardNavbar = ({savedBoards }) => {
     const {boardState} = UseGlobalContext();
+
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-black bg-opacity-70 text-white shadow-sm">
 
@@ -27,35 +29,6 @@ const BoardNavbar = ({ onSave, onLoad, savedBoards }) => {
         <div className="w-8 h-8 rounded-full bg-purple-700 text-white flex items-center justify-center text-sm font-semibold">
           H
         </div>
-        <div className="relative">
-  <select
-    className="text-sm bg-gray-200 text-black px-2 py-1 rounded hover:bg-gray-300"
-    onChange={(e) => onLoad(Number(e.target.value))}
-    defaultValue=""
-  >
-    <option value="" disabled>
-      Load Board
-    </option>
-    {savedBoards.map((board) => (
-      <option key={board.id} value={board.id}>
-        {board.title} ({new Date(board.id).toLocaleTimeString()})
-      </option>
-    ))}
-  </select>
-</div>
-
-        
-        <button className="flex items-center gap-1 text-sm bg-gray-200 text-black px-2 py-1 rounded hover:bg-gray-300">
-          <Share2 size={14} />
-          Share
-        </button>
-         <button
-          onClick={onSave}
-          className="flex items-center gap-1 text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-        >
-          Save
-        </button>
-        
       </div>
     </nav>
   );

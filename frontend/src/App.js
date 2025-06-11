@@ -21,7 +21,7 @@ const App = () => {
           <Route path="/boards" element={<Boards />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:chatId" element={<ChatApp />} />
-          <Route path="/kanban" element={<Kanban/>}/>
+          <Route path="/kanban/:boardId" element={<Kanban />} />
           <Route path="/home" element={<HomePage/>}/>
         </Routes>
       </div>

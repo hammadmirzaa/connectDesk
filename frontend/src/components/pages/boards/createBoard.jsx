@@ -1,44 +1,55 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UseGlobalContext } from "../../../context/GlobalContext";
+import { UseBoardsContext } from "../../../context/BoardsContext";
 
 const CreateBoardForm = () => {
   const [title, setTitle] = useState("");
   const [selectedBg, setSelectedBg] = useState(null);
   const [visibility, setVisibility] = useState("Workspace");
   const [error, setError] = useState("");
-  const { setShowBoardForm, setBoardState } = UseGlobalContext();
 
+  const { setShowBoardForm, setBoardState } = UseGlobalContext();
+  const { setBoards, boards, saveBoard } = UseBoardsContext();
   const navigate = useNavigate();
 
   const backgroundOptions = [
-    // Abstract gradients and minimal aesthetics
-    "https://images.unsplash.com/photo-1581349481708-c42e6accc346?auto=format&fit=crop&w=1600&q=80", // Abstract blue gradient
-    "https://images.unsplash.com/photo-1607093800858-89f11382d45e?auto=format&fit=crop&w=1600&q=80", // Soft pastel gradient
-    "https://images.unsplash.com/photo-1526403221810-81a6a226eebb?auto=format&fit=crop&w=1600&q=80", // Clean white desk
-
-    // Office & productivity scenes
-    "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80", // Minimal desk setup
-    "https://images.unsplash.com/photo-1581092334600-7b01f1dc65b3?auto=format&fit=crop&w=1600&q=80", // Office top-down
-
-    // Nature but subtle/professional
-    "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1600&q=80", // Calm forest
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80", // Misty mountains
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80", // Ocean calm waves
+    // your predefined list of images
+    "https://images.unsplash.com/photo-1581349481708-c42e6accc346?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1607093800858-89f11382d45e?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1526403221810-81a6a226eebb?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1581092334600-7b01f1dc65b3?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
   ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!title) {
-      setError("Board title is required");
-      return;
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!title) {
+    setError("Board title is required");
+    return;
+  }
 
-    // Navigate to /kanban with state
-    navigate("/kanban");
-    setBoardState({ title, selectedBg, visibility });
+  try {
+    const newBoard = await saveBoard({
+      title,
+      background_image: selectedBg,
+      visibility,
+    });
+
+    if (!newBoard) throw new Error("Failed to create board");
+
+    setBoardState(newBoard); 
     setShowBoardForm(false);
-  };
+    navigate(`/kanban/${newBoard.id}`);
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong while creating the board.");
+  }
+};
+
 
   return (
     <form

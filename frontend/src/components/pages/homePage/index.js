@@ -5,7 +5,6 @@ import { Button, TextField } from "@mui/material";
 export default function HomePage() {
   return (
     <div className="font-sans text-gray-900">
-      {/* Header */}
       <header className="flex justify-between items-center p-6">
         <h1 className="text-xl font-bold">ConnectDesk</h1>
         <div className="space-x-4">
@@ -13,8 +12,6 @@ export default function HomePage() {
           <Button variant="contained" color="primary">Sign up</Button>
         </div>
       </header>
-
-      {/* Hero Section */}
       <section className="text-center mt-16 px-6">
         <p className="text-sm text-gray-600">Collaboration tool, made for everyone</p>
         <h2 className="text-4xl font-bold leading-snug mt-2">
@@ -26,7 +23,6 @@ export default function HomePage() {
         <img src="/assets/dashboard.png" alt="Dashboard" className="mx-auto mt-10 rounded-xl shadow-xl max-w-5xl w-full" />
       </section>
 
-      {/* Features Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20 px-10">
         <div className="border rounded-xl p-6 shadow-sm bg-white">
           <h3 className="font-semibold text-lg mb-2">Task Management</h3>
