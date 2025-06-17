@@ -1,5 +1,5 @@
 // src/context/AuthContext.js
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -7,6 +7,7 @@ export const UseAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [username, setUsername] = useState("");
 
   const loginUser = async (username, password) => {
     try {
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }) => {
   
       localStorage.setItem("token", token);
       setUser(user);
+      setUsername(data?.username)
   
       return { success: true, data: user };
     } catch (error) {
@@ -63,10 +65,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
-  
 
   return (
-    <AuthContext.Provider value={{ user, loginUser, registerUser }}>
+    <AuthContext.Provider value={{ user, loginUser, registerUser, username }}>
       {children}
     </AuthContext.Provider>
   );

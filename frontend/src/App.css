@@ -16,7 +16,7 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-rose-900 rounded-xl;
+    @apply bg-gray-900 rounded-xl;
   }
 
 

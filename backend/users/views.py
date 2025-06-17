@@ -7,6 +7,51 @@ from rest_framework import status
 from .serializers import RegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework import status, permissions
+from django.contrib.auth import authenticate
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CustomLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+
+            response = Response({
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "username": user.username
+            }, status=status.HTTP_200_OK)
+
+            # Set HttpOnly cookie with access token (optional, frontend can also store manually)
+            response.set_cookie(
+                key="access_token",
+                value=str(refresh.access_token),
+                httponly=True,
+                secure=False,  # Set to True in production
+                samesite='Lax'
+            )
+
+            # Also send CSRF token in a cookie
+            response.set_cookie(
+                key="csrftoken",
+                value=get_token(request),
+                httponly=False,  # CSRF token must be accessible to JavaScript
+                secure=False,
+                samesite='Lax'
+            )
+
+            return response
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 

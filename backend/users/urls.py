@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LogoutView
+from .views import RegisterView, LogoutView, CustomLoginView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -23,14 +23,13 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
+    path('signup/', RegisterView.as_view(), name='signup'),
+    path('login/', CustomLoginView.as_view(), name='login'),  # <- updated
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
+    # Swagger
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-
-
-    path('signup/', RegisterView.as_view(), name='signup'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('logout/', LogoutView.as_view(), name='logout'),
 ]
