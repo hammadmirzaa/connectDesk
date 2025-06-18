@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SharedLayout from "../../navbar/index";
-import {
-  History,
-  ChatBubbleOutline,
-  FiberManualRecord,
-  Search,
-} from "@mui/icons-material";
-import WavingHandIcon from '@mui/icons-material/WavingHand';
+// import { History, ChatBubbleOutline, FiberManualRecord, Search } from "@mui/icons-material"; // REMOVE MUI ICONS
+// import WavingHandIcon from '@mui/icons-material/WavingHand'; // REMOVE
 import BoardBG from "../../../assets/png/board_bg.png";
 import CardCarousel from "../../ReUsableComponents/carousel";
 import { UseBoardsContext } from "../../../context/BoardsContext";
@@ -15,16 +10,14 @@ import chatIllustration from "../../../assets/png/Chat_illustration.png";
 import taskIllustration from "../../../assets/png/task_illustration.png";
 import heyIcon from "../../../assets/png/hey_icon.png";
 import { UseAuthContext } from "../../../context/AuthContext";
+import { Link } from "react-router-dom";
+import { History } from "@mui/icons-material";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const { boards } = UseBoardsContext();
-  const {username, loginUser} = UseAuthContext();
-
-  useEffect(()=>{
-loginUser()
-  },[])
+  const { username } = UseAuthContext();
 
   // Task management slides data
   const taskManagementSlides = [
@@ -48,119 +41,108 @@ loginUser()
     },
   ];
 
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
+  const goToSlide = (index) => setCurrentSlide(index);
 
   // Auto-slide timer
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % taskManagementSlides.length);
     }, 3000);
-
     return () => clearInterval(timer);
   }, [taskManagementSlides.length]);
 
+  // Helper for illustrations
+  const getIllustration = (type) => {
+    if (type === "task") return taskIllustration;
+    if (type === "team") return boardIllustration;
+    if (type === "progress") return chatIllustration;
+    return "";
+  };
+
   return (
     <SharedLayout>
-      <div className=" w-full p-8 overflow-hidden">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          {/* Search Bar */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-full ">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full px-4 py-2 pr-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Welcome User Section */}
-          <div className="text-center mb-8">
-            <div className="flex items-center  mb-4 gap-2 ">
-                <WavingHandIcon className="w-10 h-10 text-yellow-400 " />
-            <h1 className="text-2xl font-bold text-gray-800 ">
-              Welcome {username}!
-            </h1>
-            </div>
-            <p className="text-gray-600 max-w-2xl text-left">
-              Whether you're managing tasks, tracking progress, or communicating
-              with your team, everything you need is in one place.
-            </p>
+      <div className="bg-[#fff] min-h-screen px-0 pb-20">
+        {/* Search Bar */}
+        <div className="max-w-4xl mx-auto pt-6 px-2">
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full px-4 py-2 border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            </span>
           </div>
         </div>
 
-        {/* Task Management Section */}
-        <div className="bg-white rounded-lg p-6 mb-8 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+        {/* Welcome User */}
+        <div className="max-w-4xl mx-auto pt-8 px-2">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">👋</span>
+            <span>
+              <span className="font-bold text-blue-700">
+                Hey, {username || "Admin"}
+              </span>
+              <span className="block text-sm text-gray-500 font-normal">
+                Welcome back!
+              </span>
+            </span>
+          </div>
+        </div>
+
+        {/* Headline + Subhead */}
+        <div className="max-w-4xl mx-auto pt-6 px-2">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            Your Team’s New Digital Workspace Starts Here
+          </h2>
+          <div className="text-gray-600 text-sm mb-8">
+            Create boards, track tasks, and chat live with your team—ConnectDesk
+            brings clarity to collaboration.
+          </div>
+        </div>
+
+        {/* Task Management Card/Carousel */}
+        <div className="max-w-4xl mx-auto px-2">
+          <div className="bg-white border rounded-2xl flex items-center justify-between p-6 mb-10 shadow-sm">
+            {/* Text */}
+            <div>
+              <div className="font-bold text-lg mb-2">
                 {taskManagementSlides[currentSlide].title}
-              </h2>
-              <p className="text-gray-600 max-w-md">
+              </div>
+              <div className="text-gray-600 max-w-md text-sm">
                 {taskManagementSlides[currentSlide].description}
-              </p>
-            </div>
-            <div className="flex-shrink-0 ml-8">
-              {/* Task Management Illustration */}
-              <div className="w-48 h-32 bg-blue-50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                    {taskManagementSlides[currentSlide].illustration ===
-                      "task" && (
-                      <img
-                        src={taskIllustration}
-                        alt="Task"
-                        className="w-58 h-58 object-contain"
-                      />
-                    )}
-                    {taskManagementSlides[currentSlide].illustration ===
-                      "team" && (
-                      <img
-                        src={boardIllustration}
-                        alt="Team"
-                        className="w-58 h-58 object-contain"
-                      />
-                    )}
-                    {taskManagementSlides[currentSlide].illustration ===
-                      "progress" && (
-                      <img
-                        src={chatIllustration}
-                        alt="Progress"
-                        className="w-8 h-8 object-contain"
-                      />
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {taskManagementSlides[currentSlide].title}
-                  </div>
-                </div>
               </div>
             </div>
+            {/* Illustration */}
+            <div>
+              <img
+                src={getIllustration(
+                  taskManagementSlides[currentSlide].illustration
+                )}
+                alt={taskManagementSlides[currentSlide].title}
+                className="w-36 h-36 object-contain"
+              />
+            </div>
           </div>
-
-          {/* Real Pagination dots */}
-          <div className="flex justify-center mt-6 space-x-2">
-            {taskManagementSlides.map((_, index) => (
+          {/* Carousel dots */}
+          <div className="flex justify-center items-center mb-8 gap-2">
+            {taskManagementSlides.map((_, idx) => (
               <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentSlide
-                    ? "bg-blue-600"
-                    : "bg-gray-300 hover:bg-gray-400"
+                key={idx}
+                className={`inline-block w-2 h-2 rounded-full transition-colors border ${
+                  idx === currentSlide
+                    ? "bg-gray-400 border-gray-400"
+                    : "bg-gray-200 border-gray-200"
                 }`}
+                onClick={() => goToSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
         </div>
 
         {/* Recent Boards Section */}
-        <div className="flex justify-between items-center w-[95%] mb-4">
+        <div className="max-w-4xl mx-auto flex justify-between px-2">
           <div className="flex gap-1 items-center">
             <History />
             <h3 className="font-medium">Recent Boards</h3>
@@ -168,33 +150,39 @@ loginUser()
           {boards.length > 3 && (
             <button
               onClick={() => setShowArrows(!showArrows)}
-              className="bg-blue-500 text-white px-4 py-1 rounded-lg text-sm"
+              className="bg-blue-500 text-white px-6 py-1 rounded-lg text-sm"
             >
               {showArrows ? "Hide" : "More"}
             </button>
           )}
         </div>
-        <CardCarousel boards={boards} showArrows={showArrows} />
-
-        {/* Recent Chats Section */}
-        <div className="flex gap-1 items-center py-5">
-          <ChatBubbleOutline />
-          <h3 className="font-medium">Recent Chats</h3>
+        <div className="max-w-4xl mx-auto px-2" >
+          <CardCarousel boards={boards} showArrows={showArrows} />
         </div>
-        <div className="max-h-[300px] overflow-y-auto">
+        {/* Recent Chats Section */}
+        <div className="max-w-4xl mx-auto px-2 flex justify-between pt-6 items-center">
+          <h3 className="font-semibold text-base">Recent Chats</h3>
+          <Link
+            to="#"
+            className="text-xs text-blue-800 font-medium hover:underline"
+          >
+            View all chats
+          </Link>
+        </div>
+        <div className="max-w-4xl mx-auto px-2 mt-2 flex flex-col gap-2 max-h-[400px] overflow-y-auto ">
           {boards.map((board, index) => (
             <div
               key={index}
-              className="flex items-center justify-between border border-[#e1e0e0] mr-2 py-3 cursor-pointer bg-white rounded-lg p-6 mb-2 shadow-sm "
+              className="flex items-center justify-between bg-white rounded-md px-4 py-3 border border-gray-200 text-sm shadow-sm"
             >
-              <div className="flex items-center gap-1">
-                <h3 className="text-base">{board.title}</h3>
-                <FiberManualRecord
-                  className="text-red-500"
-                  style={{ width: "10px" }}
-                />
-              </div>
-              <p className="text-xs">{board.date}</p>
+              <span>{board.title}</span>
+              <span className="text-xs text-gray-500">{new Date(board.created_at)
+                      .toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                      .replace(",", "")}</span>
             </div>
           ))}
         </div>

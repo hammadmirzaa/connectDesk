@@ -10,7 +10,7 @@ const SharedLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { showBoardForm, setShowBoardForm } = UseGlobalContext();
-  const {username} = UseAuthContext();
+  const { username } = UseAuthContext();
 
   const links = [
     { name: "Home", link: "/dashboard" },
@@ -24,8 +24,8 @@ const SharedLayout = ({ children }) => {
       <div className="flex justify-between items-center px-40 py-2 bg-[#ffffff] shadow-sm sticky top-0 z-10 h-[64px]">
         <div className="flex items-center gap-12">
           <h1 className="text-[24px] w-[10rem] font-bold ">ConnectDesk</h1>
-         
-        { /* <Button
+
+          {/* <Button
             onClick={() => setShowBoardForm(true)}
             variant="contained"
             sx={{
@@ -41,12 +41,14 @@ const SharedLayout = ({ children }) => {
             }}
           >
             Create
-          </Button> */ }
-          {showBoardForm && <CreateBoardForm />}
+          </Button> */}
+          {showBoardForm && (
+            <CreateBoardForm onClose={() => setShowBoardForm(false)} />
+          )}
         </div>
 
         <div className="flex items-center gap-4">
-         <ul className="flex items-center justify-center gap-8 list-none">
+          <ul className="flex items-center justify-center gap-8 list-none">
             {links.map((link) => {
               const isActive = location.pathname === link.link;
               return (
@@ -65,16 +67,16 @@ const SharedLayout = ({ children }) => {
         </div>
 
         <div className="flex items-center gap-2">
-{    /*      <div className="flex items-center border-b border-white/40 px-2">
+          {/*      <div className="flex items-center border-b border-white/40 px-2">
             <input
               type="text"
               placeholder="Search"
               className="outline-none px-2 py-1 bg-transparent text-white placeholder-white/70"
             />
             <Search className="text-white cursor-pointer" />
-          </div> */ }
+          </div> */}
           <AccountCircle className=" cursor-pointer hover:text-blue-200 transition-colors" />
-          <p>{username}`</p>
+          <p>{username}</p>
         </div>
       </div>
 

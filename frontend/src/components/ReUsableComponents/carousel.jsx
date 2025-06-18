@@ -30,7 +30,7 @@ const CardCarousel = ({boards, showArrows}) => {
               className="w-[85%]  h-auto border relative rounded-lg cursor-pointer"
               onClick={()=>navigate(`/kanban/${board.id}`)}
             >
-              <p className="absolute p-2 text-white bold ">{board.title}</p>
+              <p className="absolute p-2 text-white font-bold  " style={{ textShadow: "0 2px 4px rgba(0.1, 0.9, 0.5, 0.9)" }} >{board.title}</p>
               <img
                 src={board.background_image || BoardBG}
                 alt=""

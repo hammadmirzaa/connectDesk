@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UseGlobalContext } from "../../../context/GlobalContext";
 import { UseBoardsContext } from "../../../context/BoardsContext";
 
-const CreateBoardForm = () => {
+const CreateBoardForm = ({onClose}) => {
   const [title, setTitle] = useState("");
   const [selectedBg, setSelectedBg] = useState(null);
   const [visibility, setVisibility] = useState("Workspace");
@@ -12,6 +12,7 @@ const CreateBoardForm = () => {
   const { setShowBoardForm, setBoardState } = UseGlobalContext();
   const { setBoards, boards, saveBoard } = UseBoardsContext();
   const navigate = useNavigate();
+  const modalRef = useRef();
 
   const backgroundOptions = [
     // your predefined list of images
@@ -50,64 +51,98 @@ const handleSubmit = async (e) => {
   }
 };
 
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [onClose]);
+
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-[#1f1f1f] text-white p-4 rounded-lg w-96 shadow-xl absolute top-[5rem] right-[34rem] z-10"
-    >
-      <h2 className="text-lg font-semibold mb-4">Create board</h2>
+    <div className="fixed inset-0 z-40 flex items-center justify-center">
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity"></div>
 
-      <div className="grid grid-cols-4 gap-2 mb-4">
-        {backgroundOptions.map((url, i) => (
-          <div
-            key={i}
-            onClick={() => setSelectedBg(url)}
-            className={`h-12 rounded cursor-pointer border-2 bg-cover bg-center ${
-              selectedBg === url ? "border-white" : "border-transparent"
-            }`}
-            style={{ backgroundImage: `url(${url})` }}
-          />
-        ))}
-      </div>
-
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          setError("");
-        }}
-        placeholder="Board title*"
-        className="w-full p-2 rounded bg-gray-700 text-white mb-1"
-      />
-      {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
-
-      <label className="block text-sm mb-1 mt-3">Visibility</label>
-      <select
-        value={visibility}
-        onChange={(e) => setVisibility(e.target.value)}
-        className="w-full p-2 rounded bg-gray-700 text-white mb-4"
+      {/* Modal */}
+      <form
+        ref={modalRef}
+        onSubmit={handleSubmit}
+        className="relative bg-[#1f1f1f] text-white p-6 rounded-xl w-full max-w-md shadow-xl z-50"
       >
-        <option value="Workspace">Workspace</option>
-        <option value="Private">Private</option>
-        <option value="Public">Public</option>
-      </select>
+        {/* Close button */}
+        <button
+          type="button"
+          className="absolute top-3 right-3 text-gray-300 hover:text-white text-xl font-bold"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          ×
+        </button>
 
-      <p className="text-xs text-gray-400 mb-4">
-        This Workspace has 7 boards remaining.
-        <br />
-        Free Workspaces can only have 10 open boards. For unlimited boards,
-        upgrade your Workspace.
-      </p>
+        <h2 className="text-lg font-semibold mb-4">Create board</h2>
 
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-semibold"
-      >
-        Create
-      </button>
-    </form>
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          {backgroundOptions.map((url, i) => (
+            <div
+              key={i}
+              onClick={() => setSelectedBg(url)}
+              className={`h-12 rounded cursor-pointer border-2 bg-cover bg-center ${
+                selectedBg === url ? "border-white" : "border-transparent"
+              }`}
+              style={{ backgroundImage: `url(${url})` }}
+            />
+          ))}
+        </div>
+
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setError("");
+          }}
+          placeholder="Board title*"
+          className="w-full p-2 rounded bg-gray-700 text-white mb-1"
+        />
+        {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
+
+        <label className="block text-sm mb-1 mt-3">Visibility</label>
+        <select
+          value={visibility}
+          onChange={(e) => setVisibility(e.target.value)}
+          className="w-full p-2 rounded bg-gray-700 text-white mb-4"
+        >
+          <option value="Workspace">Workspace</option>
+          <option value="Private">Private</option>
+          <option value="Public">Public</option>
+        </select>
+
+        <p className="text-xs text-gray-400 mb-4">
+          This Workspace has 7 boards remaining.
+          <br />
+          Free Workspaces can only have 10 open boards. For unlimited boards,
+          upgrade your Workspace.
+        </p>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-semibold"
+        >
+          Create
+        </button>
+      </form>
+    </div>
   );
 };
 

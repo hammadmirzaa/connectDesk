@@ -42,13 +42,6 @@ const LoginForm = ({login}) => {
   return (
     <div className="w-full  ">
     <div className="flex   ">
-    <div className=" w-full ">
-    <img
-      src={Bg}
-      alt="Background"
-      className="w-full h-full object-cover"
-    />
-  </div>
   
       <div className="w-full flex justify-center  ">
         <div className="h-[580px] w-[580px] pt-[6rem] ">
