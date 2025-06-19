@@ -4,14 +4,15 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UserListSerializer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework import status, permissions
 from django.contrib.auth import authenticate
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
-
+from rest_framework.generics import ListAPIView
+from django.contrib.auth.models import User
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomLoginView(APIView):
@@ -62,6 +63,15 @@ class RegisterView(APIView):
             serializer.save()
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserListView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class LogoutView(APIView):

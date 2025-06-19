@@ -15,8 +15,7 @@ const Boards = () => {
   return (
     <SharedLayout>
       <div className="bg-[#ffffff] min-h-screen py-10">
-        {/* Search bar */}
-        <div className="max-w-4xl mx-auto pb-8 px-2">
+        <div className="max-w-5xl mx-auto pb-8 px-2">
           <div className="relative w-full">
             <input
               type="text"
@@ -26,8 +25,7 @@ const Boards = () => {
           </div>
         </div>
 
-        {/* Getting Started Section */}
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-10 mb-12">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10 mb-12">
           <div className="flex-1 flex flex-col justify-center">
             <h2 className="font-semibold text-xl mb-2 text-gray-800">Getting started with boards</h2>
             <p className="text-gray-500 mb-3">Just a few steps to supercharge your productivity!</p>
@@ -38,7 +36,6 @@ const Boards = () => {
               <li>Make boards public/private</li>
             </ul>
           </div>
-          {/* Right: Video */}
           <div className="flex-1 flex justify-center items-center">
             <div className="w-full max-w-md rounded-2xl overflow-hidden bg-gray-200 shadow-lg border border-gray-100 flex items-center justify-center aspect-video">
               <iframe
@@ -53,9 +50,7 @@ const Boards = () => {
             </div>
           </div>
         </div>
-
-        {/* Add New Board Section */}
-        <div className="max-w-4xl mx-auto w-full border-t border-gray-200 pt-7 mb-10">
+        <div className="max-w-5xl mx-auto w-full border-t border-gray-200 pt-7 mb-10">
           <div className="mb-2 font-medium text-base text-gray-700 flex items-center gap-2">
             Add a new board
           </div>
@@ -68,8 +63,7 @@ const Boards = () => {
           </button>
         </div>
 
-        {/* Boards Carousel */}
-        <div className="max-w-4xl mx-auto w-full mb-8">
+        <div className="max-w-5xl mx-auto w-full mb-8">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold text-base text-gray-700">Recent Boards</h3>
             {boards.length > 3 && (
@@ -87,15 +81,14 @@ const Boards = () => {
           )}
         </div>
 
-        {/* All Boards Section */}
-        <div className="max-w-4xl mx-auto w-full border-t border-gray-200 pt-7">
+        <div className="max-w-5xl mx-auto w-full border-t border-gray-200 pt-7">
           <div className="mb-3 font-semibold text-lg text-gray-900 flex items-center gap-2">
             All Boards
             <span className="ml-2 text-xs font-normal text-gray-400">
               {boards.length} total
             </span>
           </div>
-          <div className="w-full max-w-4xl">
+          <div className="w-full max-w-5xl">
             {boards.length === 0 ? (
               <div className="text-center text-gray-400 text-base py-10">No boards to show. Start by creating one!</div>
             ) : (
@@ -108,7 +101,6 @@ const Boards = () => {
                     {board.title}
                   </span>
                   <button className="flex items-center gap-1 border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-100 hover:text-blue-700 hover:border-blue-400 transition">
-                    {/* Share SVG icon */}
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                       <path
                         d="M15 8l5 4-5 4M20 12H9a5 5 0 1 1 0-10h1"

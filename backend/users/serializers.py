@@ -15,3 +15,17 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+    
+class UserListSerializer(serializers.ModelSerializer):
+    admin = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'admin']
+
+    def get_admin(self, obj):
+        request = self.context.get('request')
+        print("request.user:", getattr(request, "user", None))
+        if request and request.user.is_authenticated and obj == request.user:
+            return True
+        return False

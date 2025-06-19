@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from "react";
-import SharedLayout from "../../navbar/index";
-// import { History, ChatBubbleOutline, FiberManualRecord, Search } from "@mui/icons-material"; // REMOVE MUI ICONS
-// import WavingHandIcon from '@mui/icons-material/WavingHand'; // REMOVE
-import BoardBG from "../../../assets/png/board_bg.png";
-import CardCarousel from "../../ReUsableComponents/carousel";
 import { UseBoardsContext } from "../../../context/BoardsContext";
+import { UseAuthContext } from "../../../context/AuthContext";
+import CardCarousel from "../../ReUsableComponents/carousel";
+import {
+  History,
+  Search,
+  Group,
+  Chat,
+  AccountCircle,
+} from "@mui/icons-material";
+import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import boardIllustration from "../../../assets/png/board_illustration.png";
 import chatIllustration from "../../../assets/png/Chat_illustration.png";
 import taskIllustration from "../../../assets/png/task_illustration.png";
-import heyIcon from "../../../assets/png/hey_icon.png";
-import { UseAuthContext } from "../../../context/AuthContext";
 import { Link } from "react-router-dom";
-import { History } from "@mui/icons-material";
+import SharedLayout from "../../navbar";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const { boards } = UseBoardsContext();
-  const { username } = UseAuthContext();
-
-  // Task management slides data
+  const { username, fetchAllUsers, users } = UseAuthContext();
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
+  // Carousel data
   const taskManagementSlides = [
     {
       title: "Task management",
@@ -41,9 +46,6 @@ const Dashboard = () => {
     },
   ];
 
-  const goToSlide = (index) => setCurrentSlide(index);
-
-  // Auto-slide timer
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % taskManagementSlides.length);
@@ -51,7 +53,6 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, [taskManagementSlides.length]);
 
-  // Helper for illustrations
   const getIllustration = (type) => {
     if (type === "task") return taskIllustration;
     if (type === "team") return boardIllustration;
@@ -59,52 +60,67 @@ const Dashboard = () => {
     return "";
   };
 
+  const stats = [
+    {
+      label: "Boards",
+      value: boards.length,
+      icon: <ViewKanbanIcon fontSize="small" />,
+    },
+    { label: "Chats", value: 3, icon: <Chat fontSize="small" /> },
+    { label: "Teams", value: 1, icon: <Group fontSize="small" /> },
+  ];
+  const upcoming = [{ title: "Meeting", date: "June 17" }];
+
+  const mainUser = users.filter((user) => user.admin === true)[0];
+
   return (
     <SharedLayout>
-      <div className="bg-[#fff] min-h-screen px-0 pb-20">
-        {/* Search Bar */}
-        <div className="max-w-4xl mx-auto pt-6 px-2">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full px-4 py-2 border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
+      <div className="flex gap-6 max-w-screen-2xl w-full mx-auto py-8 px-2">
+        <section className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search…"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 pr-12"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-blue-600 text-white p-8 flex items-center justify-between mb-8 shadow-md">
+            <div>
+              <div className="text-xl font-bold mb-2">
+                Your Team's New Digital Workspace Starts Here
+              </div>
+              <div className="text-sm mb-4">
+                Create boards, track tasks, and chat live with your
+                team—ConnectDesk brings clarity to collaboration.
+              </div>
+              <button className="bg-white text-blue-600 font-medium px-6 py-2 rounded-lg shadow hover:bg-blue-50 transition">
+                Get Started
+              </button>
+            </div>
+            <img
+              src={boardIllustration}
+              alt="Banner"
+              className="h-28 w-28 object-contain"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            </span>
           </div>
-        </div>
 
-        {/* Welcome User */}
-        <div className="max-w-4xl mx-auto pt-8 px-2">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">👋</span>
-            <span>
-              <span className="font-bold text-blue-700">
-                Hey, {username || "Admin"}
-              </span>
-              <span className="block text-sm text-gray-500 font-normal">
-                Welcome back!
-              </span>
-            </span>
+          <div className="rounded-2xl bg-white border p-5 mb-8 shadow-sm flex items-center gap-5">
+            <div className="rounded-full bg-blue-100 p-2">
+              <Group className="text-blue-600" />
+            </div>
+            <div>
+              <div className="font-bold text-gray-900">Team Collaboration</div>
+              <div className="text-gray-500 text-sm">
+                Seamlessly collaborate with team members, share files, and
+                communicate in real-time to boost productivity.
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Headline + Subhead */}
-        <div className="max-w-4xl mx-auto pt-6 px-2">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
-            Your Team’s New Digital Workspace Starts Here
-          </h2>
-          <div className="text-gray-600 text-sm mb-8">
-            Create boards, track tasks, and chat live with your team—ConnectDesk
-            brings clarity to collaboration.
-          </div>
-        </div>
-
-        {/* Task Management Card/Carousel */}
-        <div className="max-w-4xl mx-auto px-2">
-          <div className="bg-white border rounded-2xl flex items-center justify-between p-6 mb-10 shadow-sm">
-            {/* Text */}
+          <div className="rounded-2xl bg-white border p-6 mb-10 shadow-sm flex items-center justify-between">
             <div>
               <div className="font-bold text-lg mb-2">
                 {taskManagementSlides[currentSlide].title}
@@ -113,18 +129,14 @@ const Dashboard = () => {
                 {taskManagementSlides[currentSlide].description}
               </div>
             </div>
-            {/* Illustration */}
-            <div>
-              <img
-                src={getIllustration(
-                  taskManagementSlides[currentSlide].illustration
-                )}
-                alt={taskManagementSlides[currentSlide].title}
-                className="w-36 h-36 object-contain"
-              />
-            </div>
+            <img
+              src={getIllustration(
+                taskManagementSlides[currentSlide].illustration
+              )}
+              alt={taskManagementSlides[currentSlide].title}
+              className="w-32 h-32 object-contain"
+            />
           </div>
-          {/* Carousel dots */}
           <div className="flex justify-center items-center mb-8 gap-2">
             {taskManagementSlides.map((_, idx) => (
               <button
@@ -134,58 +146,117 @@ const Dashboard = () => {
                     ? "bg-gray-400 border-gray-400"
                     : "bg-gray-200 border-gray-200"
                 }`}
-                onClick={() => goToSlide(idx)}
+                onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
-        </div>
-
-        {/* Recent Boards Section */}
-        <div className="max-w-4xl mx-auto flex justify-between px-2">
-          <div className="flex gap-1 items-center">
-            <History />
-            <h3 className="font-medium">Recent Boards</h3>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex gap-1 items-center">
+              <h3 className="font-medium">Recent Boards</h3>
+            </div>
+            {boards.length > 3 && (
+              <button
+                onClick={() => setShowArrows(!showArrows)}
+                className="text-blue-600 text-sm font-medium hover:underline"
+              >
+                {showArrows ? "Hide" : "More"}
+              </button>
+            )}
           </div>
-          {boards.length > 3 && (
-            <button
-              onClick={() => setShowArrows(!showArrows)}
-              className="bg-blue-500 text-white px-6 py-1 rounded-lg text-sm"
+          <div>
+            {boards.length === 0 ? (
+              <div className="text-gray-400 text-sm text-center py-8">
+                No boards yet. Click{" "}
+                <span className="text-blue-600 font-semibold">Get Started</span>{" "}
+                above to create your first board!
+              </div>
+            ) : (
+              <CardCarousel boards={boards} showArrows={showArrows} />
+            )}
+          </div>
+          <div className="flex justify-between items-center pt-6 mb-2">
+            <h3 className="font-semibold text-base">Recent Chats</h3>
+            <Link
+              to="#"
+              className="text-xs text-blue-800 font-medium hover:underline"
             >
-              {showArrows ? "Hide" : "More"}
-            </button>
-          )}
-        </div>
-        <div className="max-w-4xl mx-auto px-2" >
-          <CardCarousel boards={boards} showArrows={showArrows} />
-        </div>
-        {/* Recent Chats Section */}
-        <div className="max-w-4xl mx-auto px-2 flex justify-between pt-6 items-center">
-          <h3 className="font-semibold text-base">Recent Chats</h3>
-          <Link
-            to="#"
-            className="text-xs text-blue-800 font-medium hover:underline"
-          >
-            View all chats
-          </Link>
-        </div>
-        <div className="max-w-4xl mx-auto px-2 mt-2 flex flex-col gap-2 max-h-[400px] overflow-y-auto ">
-          {boards.map((board, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between bg-white rounded-md px-4 py-3 border border-gray-200 text-sm shadow-sm"
-            >
-              <span>{board.title}</span>
-              <span className="text-xs text-gray-500">{new Date(board.created_at)
+              View all chats
+            </Link>
+          </div>
+          <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
+            {boards.length === 0 ? (
+              <div className="text-gray-400 text-sm text-center py-8">
+                No chats yet. Your recent chats will appear here when you start
+                collaborating!
+              </div>
+            ) : (
+              boards.map((board, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-white rounded-md px-4 py-3 border border-gray-200 text-sm shadow-sm"
+                >
+                  <span>{board.title}</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(board.created_at)
                       .toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                       })
-                      .replace(",", "")}</span>
+                      .replace(",", "")}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+        <aside className="w-[330px] shrink-0 flex flex-col gap-6">
+          <div className="bg-white rounded-2xl shadow p-5 flex items-center gap-4">
+            <AccountCircle className="text-blue-400" fontSize="large" />
+            <div>
+              <div className="font-bold text-gray-900">
+                {mainUser?.username || "Admin"}
+              </div>
+              <div className="text-xs text-gray-500">Welcome back!</div>
             </div>
-          ))}
-        </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow p-5">
+            <h4 className="font-bold text-gray-800 mb-4">Statistics</h4>
+            <div className="flex gap-4">
+              {stats.map((s, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col items-center justify-center p-3 rounded-lg bg-blue-50 flex-1"
+                >
+                  <div className="mb-1">{s.icon}</div>
+                  <div className="font-bold text-blue-800">{s.value}</div>
+                  <div className="text-xs text-gray-600">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow p-5">
+            <h4 className="font-bold text-gray-800 mb-2">Upcoming</h4>
+            {upcoming.map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between py-1">
+                <div className="flex gap-2 items-center">
+                  <Group className="text-blue-500" fontSize="small" />
+                  <span className="text-gray-700">{item.title}</span>
+                </div>
+                <span className="text-xs text-gray-400">{item.date}</span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl shadow p-5">
+            <h4 className="font-bold text-gray-800 mb-2">Facund</h4>
+            {boards.slice(0, 4).map((board, idx) => (
+              <div key={idx} className="flex items-center gap-2 py-1">
+                <span className="text-gray-700">{board.title}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
       </div>
     </SharedLayout>
   );

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LogoutView, CustomLoginView
+from .views import RegisterView, LogoutView, CustomLoginView, UserListView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -21,10 +21,10 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
-
 urlpatterns = [
     path('signup/', RegisterView.as_view(), name='signup'),
-    path('login/', CustomLoginView.as_view(), name='login'),  # <- updated
+    path('login/', CustomLoginView.as_view(), name='login'),  
+     path('users/', UserListView.as_view(), name='user-list'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
 

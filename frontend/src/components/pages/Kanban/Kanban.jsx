@@ -12,7 +12,7 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
 import SharedLayout from "../../navbar";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { UseGlobalContext } from "../../../context/GlobalContext";
 import BoardNavbar from "./BoardNavbar";
 import { UseBoardsContext } from "../../../context/BoardsContext";
@@ -23,13 +23,14 @@ function Kanban() {
   const [activeColumn, setActiveColumn] = useState(null);
   const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
   const [activeTask, setActiveTask] = useState(null);
-  const { boardState, saveBoardState, savedBoards, setBoardState } =
-    UseGlobalContext();
-  const { boards, addColumn, loadBoards, addTask, deleteTaskApi, deleteColumnApi, updateColumnApi, updateTaskApi } = UseBoardsContext();
+  const { boardState, setBoardState, savedBoards } = UseGlobalContext();
+  const { boards, addColumn, addTask, deleteTaskApi, deleteColumnApi, updateColumnApi, updateTaskApi } = UseBoardsContext();
   const { boardId } = useParams();
+
+  
+
   useEffect(() => {
     const board = boards.find((b) => b.id === boardId);
-    console.log(board?.columns, "board.columns");
     if (board) {
       setColumns(board?.columns || []);
       const allTasks = board?.columns?.flatMap((column) => column.tasks) || [];
@@ -46,6 +47,7 @@ function Kanban() {
         backgroundImage: board.background_image,
       });
     }
+    // eslint-disable-next-line
   }, [boardId]);
 
   const sensors = useSensors(
@@ -58,30 +60,34 @@ function Kanban() {
 
   return (
     <SharedLayout>
-      <div className="w-full h-[81.5vh] ">
-      <BoardNavbar savedBoards={savedBoards} />
+      <div className="w-full h-full relative">
+        {/* Glassy Board Background */}
         <div
-          className="m-auto flex max-h-[50%] h-[50%] w-full items-center overflow-x-auto overflow-y-hidden px-[40px] overflow-y-auto"
+          className="absolute inset-0 z-0"
           style={{
-            backgroundImage: ` ${
-              boardState.backgroundImage
-                ? `url(${boardState.backgroundImage})`
-                : ``
-            }  `,
+            backgroundImage: boardState.backgroundImage
+              ? `url(${boardState.backgroundImage})`
+              : "none",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-
+            filter: "brightness(0.90) blur(1px)",
+            transition: "all 0.4s"
           }}
-        >
-          <DndContext
-            sensors={sensors}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onDragOver={onDragOver}
-          >
-            <div className="m-auto flex gap-4 ">
-              <div className="flex gap-2 ">
+        />
+        <div className="absolute inset-0 z-0 bg-black bg-opacity-60" />
+        {/* Main content */}
+        <div className="relative z-10 flex flex-col h-full min-h-[81.5vh]">
+          <BoardNavbar savedBoards={savedBoards} />
+          {/* Columns Row */}
+          <div className="flex-1 px-10 py-8 overflow-x-auto overflow-y-hidden">
+            <div className="flex gap-4 items-start min-h-[120px] pb-8">
+            <DndContext
+              sensors={sensors}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onDragOver={onDragOver}
+            >
+              <div className="flex gap-4 items-start min-h-[120px] pb-8">
                 <SortableContext items={columnsId}>
                   {columns.map((column) => (
                     <ColumnsContainer
@@ -98,61 +104,54 @@ function Kanban() {
                     />
                   ))}
                 </SortableContext>
+                {/* Add Column Glassy Button */}
+                <button
+                  onClick={generateNewColumns}
+                  className="
+                    min-w-[220px] h-[48px] flex items-center gap-2 px-4
+                    bg-black bg-opacity-30 hover:bg-opacity-50 text-gray-100
+                    border-2 border-dashed border-white/30 rounded-2xl
+                    font-medium shadow-md
+                    transition
+                  "
+                >
+                  <PlusIcons /> Add another list
+                </button>
               </div>
-              <button
-                onClick={generateNewColumns}
-                className="
-            text-white
-    h-[30px]
-    w-[250px]
-    min-w-[250px]
-    bg-mainBackgroundColor
-    border-2
-    border-columnBackgroundColor
-    p-4
-   [#1565C0]
-    hover:ring-2
-    flex
-    justify-center
-    items-center
-    gap-2
-    rounded-2xl
-    "
-              >
-                <PlusIcons /> Add Column
-              </button>
+              {createPortal(
+                <DragOverlay>
+                  {activeColumn && (
+                    <ColumnsContainer
+                      column={activeColumn}
+                      deleteColumn={deleteColumn}
+                      updateColumn={updateColumn}
+                      createTask={createTask}
+                      deleteTask={deleteTask}
+                      updateTask={updateTask}
+                      tasks={tasks.filter(
+                        (task) => task.columnId === activeColumn.id
+                      )}
+                    />
+                  )}
+                  {activeTask && (
+                    <TaskCard
+                      task={activeTask}
+                      deleteTask={deleteTask}
+                      updateTask={updateTask}
+                    />
+                  )}
+                </DragOverlay>,
+                document.body
+              )}
+            </DndContext>
             </div>
-            {createPortal(
-              <DragOverlay>
-                {activeColumn && (
-                  <ColumnsContainer
-                    column={activeColumn}
-                    deleteColumn={deleteColumn}
-                    updateColumn={updateColumn}
-                    createTask={createTask}
-                    deleteTask={deleteTask}
-                    updateTask={updateTask}
-                    tasks={tasks.filter(
-                      (task) => task.columnId === activeColumn.id
-                    )}
-                  />
-                )}
-                {activeTask && (
-                  <TaskCard
-                    task={activeTask}
-                    deleteTask={deleteTask}
-                    updateTask={updateTask}
-                  />
-                )}
-              </DragOverlay>,
-              document.body
-            )}
-          </DndContext>
+          </div>
         </div>
       </div>
     </SharedLayout>
   );
 
+  // ----- HANDLERS (all logic unchanged) -----
   async function generateNewColumns() {
     const columnsAdd = {
       id: generateId(),
@@ -262,18 +261,16 @@ function Kanban() {
   async function deleteTask(id) {
     const newTasks = tasks.filter((task) => task.id !== id);
     setTasks(newTasks);
-    console.log(newTasks, "newTasks");
     await deleteTaskApi(id);
   }
 
-  async function updateTask(id, title) {
+  async function updateTask(id, title, completed) {
     const newTasks = tasks.map((task) => {
       if (task.id !== id) return task;
-
       return { ...task, title };
     });
     setTasks(newTasks);
-    await updateTaskApi({ id, title });
+    await updateTaskApi({ id, title, completed });
   }
 }
 

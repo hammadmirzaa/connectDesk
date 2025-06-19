@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ReactComponent as GoogleIcon } from "../../../assets/svg/googleIcon.svg";
 import { UseAuthContext } from "../../../context/AuthContext";
+import { UseBoardsContext } from "../../../context/BoardsContext";
 
 const Login = () => {
   const { loginUser } = UseAuthContext();
+  const {loadBoards} = UseBoardsContext()
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -21,6 +23,7 @@ const Login = () => {
     const result = await loginUser(formData.username, formData.password);
     if (result.success) {
       navigate("/dashboard");
+      loadBoards()
     } else {
       alert("Login failed: " + result.error);
     }

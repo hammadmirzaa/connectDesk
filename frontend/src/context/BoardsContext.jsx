@@ -6,6 +6,8 @@ export const UseBoardsContext = () => useContext(BoardsContext);
 export const BoardsProvider = ({ children }) => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
+
 
   const loadBoards = async () => {
     try {
@@ -13,6 +15,7 @@ export const BoardsProvider = ({ children }) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
           Accept: "application/json",
         },
       });
@@ -34,6 +37,7 @@ export const BoardsProvider = ({ children }) => {
         method: isUpdate ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
           Accept: "application/json",
         },
         body: JSON.stringify(board),
@@ -55,9 +59,7 @@ export const BoardsProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    loadBoards();
-  }, []);
+
 
 
 const addColumn = async (column) => {
@@ -66,6 +68,7 @@ const addColumn = async (column) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
         Accept: "application/json",
       },
       body: JSON.stringify(column),
@@ -84,6 +87,7 @@ const updateColumnApi = async (column) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
         Accept: "application/json",
       },
       body: JSON.stringify(column),
@@ -102,6 +106,7 @@ const updateTaskApi = async (task) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
         Accept: "application/json",
       },
       body: JSON.stringify(task),
@@ -132,6 +137,7 @@ const addTask = async (task) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
         Accept: "application/json",
       },
       body: JSON.stringify(task),
@@ -154,6 +160,12 @@ const deleteTaskApi = async (taskId) => {
     console.error("Error deleting task:", error);
   }
 };
+
+useEffect(()=>{
+  if(token){
+    loadBoards()
+  }
+},[token])
 
 
   return (

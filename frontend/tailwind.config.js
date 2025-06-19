@@ -9,6 +9,9 @@ module.exports = {
         mainBackgroundColor: "#36454F", 
         columnBackgroundColor: "#141414", 
       },
+       fontFamily: {
+        sans: ['Poppins', 'sans-serif'], 
+      },
     },
   },
   plugins: [],

@@ -1,12 +1,14 @@
 import uuid
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Board(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     background_image = models.URLField(max_length=1000, blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(User, related_name='created_boards', on_delete=models.CASCADE, null=True, blank=True)
+    members = models.ManyToManyField(User, related_name='boards')
 
 
 class Column(models.Model):
@@ -19,3 +21,4 @@ class Task(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     columnId = models.ForeignKey(Column, related_name='tasks', on_delete=models.CASCADE)
     title = models.TextField(  blank=True, null=True)
+    completed = models.BooleanField(default=False)
