@@ -36,10 +36,11 @@ class CustomLoginView(APIView):
             response.set_cookie(
                 key="access_token",
                 value=str(refresh.access_token),
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax'
+                httponly=False,
+                secure=True,
+                samesite="None"
             )
+
 
             # Also send CSRF token in a cookie
             response.set_cookie(
