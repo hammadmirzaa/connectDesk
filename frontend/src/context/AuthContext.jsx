@@ -11,39 +11,37 @@ export const AuthProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const token = Cookies.get("access_token");
 
-  const loginUser = async (username, password) => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/users/login/", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+const loginUser = async (username, password) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/users/login/", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Login failed");
-      }
-
-      const data = await response.json();
-      const token = data.access;
-      if (response.ok && data.access) {
-        Cookies.set("access_token", data.access, { sameSite: "Lax" });
-      }
-      const user = data.username;
-
-      localStorage.setItem("token", token);
-      setUser(user);
-      setUsername(data?.username);
-
-      return { success: true, data: user };
-    } catch (error) {
-      console.error("Login error:", error.message);
-      return { success: false, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Login failed");
     }
-  };
+
+    const data = await response.json();
+    if (data.access) {
+      Cookies.set("access_token", data.access, { sameSite: "Lax" });
+    }
+    if (data.refresh) {
+      Cookies.set("refresh_token", data.refresh, { sameSite: "Lax" });
+    }
+
+    setUser(data.username);
+    setUsername(data.username);
+    return { success: true, data: data.username };
+  } catch (error) {
+    console.error("Login error:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 
   const registerUser = async (username, email, password) => {
     try {
@@ -73,7 +71,6 @@ export const AuthProvider = ({ children }) => {
 
   const fetchAllUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
       const response = await fetch("http://127.0.0.1:8000/users/users/", {
         method: "GET",
         headers: {

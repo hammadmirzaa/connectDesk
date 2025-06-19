@@ -160,8 +160,8 @@ export default function RoomChat({ room }) {
 
       {/* Messages */}
       <div className="flex-1 px-6 py-6 overflow-y-auto flex flex-col gap-3 bg-[#fafcff]">
-        {messages.map((msg, i) => {
-          const isCurrentUser = msg.sender === currentUser.username;
+        {messages?.map((msg, i) => {
+          const isCurrentUser = msg.sender === currentUser?.username;
           const name = isCurrentUser ? "You" : msg.sender;
           // Get initials (first letter of each word, max 2)
           const initials = msg.sender
