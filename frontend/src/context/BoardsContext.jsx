@@ -1,15 +1,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
+import Cookies from "js-cookie";
 const BoardsContext = createContext();
 export const UseBoardsContext = () => useContext(BoardsContext);
 
 export const BoardsProvider = ({ children }) => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
+  const token = Cookies.get("access_token");
 
+
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    if (token) {
+      loadBoards();
+    }
+    console.log("token:", token);
+  }, []);
 
   const loadBoards = async () => {
+  const token = Cookies.get("access_token");
     try {
       const res = await fetch("http://localhost:8000/api/boards/", {
         method: "GET",
@@ -29,8 +38,12 @@ export const BoardsProvider = ({ children }) => {
   };
 
   const saveBoard = async (board) => {
+  const token = Cookies.get("access_token");
+
     const isUpdate = !!board.id;
-    const url = `http://localhost:8000/api/boards/${isUpdate ? board.id + "/" : ""}`;
+    const url = `http://localhost:8000/api/boards/${
+      isUpdate ? board.id + "/" : ""
+    }`;
 
     try {
       const res = await fetch(url, {
@@ -59,133 +72,139 @@ export const BoardsProvider = ({ children }) => {
     }
   };
 
+  const addColumn = async (column) => {
+  const token = Cookies.get("access_token");
 
+    try {
+      const res = await fetch("http://localhost:8000/api/columns/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(column),
+      });
+      const newColumn = await res.json();
+      loadBoards();
+      return newColumn;
+    } catch (error) {
+      console.error("Error adding column:", error);
+    }
+  };
 
+  const updateColumnApi = async (column) => {
+  const token = Cookies.get("access_token");
 
-const addColumn = async (column) => {
-  try {
-    const res = await fetch("http://localhost:8000/api/columns/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-        Accept: "application/json",
-      },
-      body: JSON.stringify(column),
-    });
-    const newColumn = await res.json();
-    loadBoards()
-    return newColumn;
-  } catch (error) {
-    console.error("Error adding column:", error);
-  }
-};
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/columns/${column.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+            Accept: "application/json",
+          },
+          body: JSON.stringify(column),
+        }
+      );
+      const updatedColumn = await res.json();
+      await loadBoards();
+      return updatedColumn;
+    } catch (error) {
+      console.error("Error updating column:", error);
+    }
+  };
 
-const updateColumnApi = async (column) => {
-  try {
-    const res = await fetch(`http://localhost:8000/api/columns/${column.id}/`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-        Accept: "application/json",
-      },
-      body: JSON.stringify(column),
-    });
-    const updatedColumn = await res.json();
-    await loadBoards();
-    return updatedColumn;
-  } catch (error) {
-    console.error("Error updating column:", error);
-  }
-};
+  const updateTaskApi = async (task) => {
+  const token = Cookies.get("access_token");
 
-const updateTaskApi = async (task) => {
-  try {
-    const res = await fetch(`http://localhost:8000/api/tasks/${task.id}/`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-        Accept: "application/json",
-      },
-      body: JSON.stringify(task),
-    });
-    const updatedTask = await res.json();
-    await loadBoards();
-    return updatedTask;
-  } catch (error) {
-    console.error("Error updating task:", error);
-  }
-};
+    try {
+      const res = await fetch(`http://localhost:8000/api/tasks/${task.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+      const updatedTask = await res.json();
+      await loadBoards();
+      return updatedTask;
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
 
+  const deleteColumnApi = async (columnId) => {
+    try {
+      await fetch(`http://localhost:8000/api/columns/${columnId}/`, {
+        method: "DELETE",
+      });
+      await loadBoards();
+    } catch (error) {
+      console.error("Error deleting column:", error);
+    }
+  };
 
-const deleteColumnApi = async (columnId) => {
-  try {
-    await fetch(`http://localhost:8000/api/columns/${columnId}/`, {
-      method: "DELETE",
-    });
-    await loadBoards(); 
-  } catch (error) {
-    console.error("Error deleting column:", error);
-  }
-};
+  const addTask = async (task) => {
+  const token = Cookies.get("access_token");
 
-const addTask = async (task) => {
-  try {
-    const res = await fetch("http://localhost:8000/api/tasks/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-        Accept: "application/json",
-      },
-      body: JSON.stringify(task),
-    });
-    const newTask = await res.json();
-    loadBoards()
-    return newTask;
-  } catch (error) {
-    console.error("Error adding task:", error);
-  }
-};
+    try {
+      const res = await fetch("http://localhost:8000/api/tasks/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+      const newTask = await res.json();
+      loadBoards();
+      return newTask;
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
 
-const deleteTaskApi = async (taskId) => {
-  try {
-    await fetch(`http://localhost:8000/api/tasks/${taskId}/`, {
-      method: "DELETE",
-    });
-    loadBoards()
-  } catch (error) {
-    console.error("Error deleting task:", error);
-  }
-};
+  const deleteTaskApi = async (taskId) => {
+    try {
+      await fetch(`http://localhost:8000/api/tasks/${taskId}/`, {
+        method: "DELETE",
+      });
+      loadBoards();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  };
 
-useEffect(()=>{
-  if(token){
-    loadBoards()
-  }
-},[token])
-
+  useEffect(() => {
+    if (token) {
+      loadBoards();
+    }
+  }, [token]);
 
   return (
-<BoardsContext.Provider
-  value={{
-    boards,
-    setBoards,
-    loadBoards,
-    saveBoard,
-    loading,
-    addColumn,
-    deleteColumnApi,
-    addTask,
-    deleteTaskApi,
-    updateTaskApi,
-    updateColumnApi,
-  }}
->
-  {children}
-</BoardsContext.Provider>
-
+    <BoardsContext.Provider
+      value={{
+        boards,
+        setBoards,
+        loadBoards,
+        saveBoard,
+        loading,
+        addColumn,
+        deleteColumnApi,
+        addTask,
+        deleteTaskApi,
+        updateTaskApi,
+        updateColumnApi,
+        token,
+      }}
+    >
+      {children}
+    </BoardsContext.Provider>
   );
 };

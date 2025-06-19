@@ -6,9 +6,10 @@ import Dashboard from "./components/pages/dashboard";
 import './App.css'
 import Boards from "./components/pages/boards";
 import Chats from "./components/pages/chats";
-import ChatApp from "./components/pages/chats/chatApp";
+// import ChatApp from "./components/pages/chats/chatApp";
 import Kanban from "./components/pages/Kanban/Kanban";
 import HomePage from "./components/pages/homePage";
+import ChatRoomsPage from './components/pages/chatRooms/ChatRoomsPage';
 
 const App = () => {
   return (
@@ -19,10 +20,10 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/boards" element={<Boards />} />
-          <Route path="/chats" element={<Chats />} />
-          <Route path="/chats/:chatId" element={<ChatApp />} />
+          {/* <Route path="/chats" element={<Chats />} /> */}
           <Route path="/kanban/:boardId" element={<Kanban />} />
           <Route path="/home" element={<HomePage/>}/>
+          <Route path="/chats" element={<ChatRoomsPage />} />
         </Routes>
       </div>
     </Router>
