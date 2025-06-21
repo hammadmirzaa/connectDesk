@@ -30,7 +30,7 @@ function Kanban() {
   
 
   useEffect(() => {
-    const board = boards.find((b) => b.id === boardId);
+    const board = boards?.find((b) => b.id === boardId);
     if (board) {
       setColumns(board?.columns || []);
       const allTasks = board?.columns?.flatMap((column) => column.tasks) || [];

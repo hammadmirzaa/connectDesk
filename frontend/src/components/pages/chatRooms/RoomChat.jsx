@@ -12,6 +12,8 @@ import { UseAuthContext } from "../../../context/AuthContext";
 import Cookies from "js-cookie";
 import Pusher from "pusher-js";
 import CreateRoomModal from "./CreateRoomModal";
+import ChatInput from "./ChatInput";
+import { MessageFileBubble } from "./MessageFile";
 
 const API_URL = "http://127.0.0.1:8000/api";
 
@@ -21,7 +23,9 @@ export default function RoomChat({ room }) {
   const [input, setInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
-  const [members, setMembers] = useState([])
+  const [file, setFile] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [showMembers, setShowMembers] = useState(false);
 
   const endRef = useRef();
 
@@ -39,15 +43,15 @@ export default function RoomChat({ room }) {
       .then(setMessages);
   }, [room]);
 
-  useEffect(()=>{
-    if(!room) return
-    const token = Cookies.get("access_token")
+  useEffect(() => {
+    if (!room) return;
+    const token = Cookies.get("access_token");
     fetch(`${API_URL}/rooms/${room.id}/members`, {
       headers: { Authorization: token ? `Bearer ${token}` : undefined },
     })
       .then((r) => r.json())
-      .then(setMembers)
-  },[room])
+      .then(setMembers);
+  }, [room]);
 
   // Real-time updates via Pusher
   useEffect(() => {
@@ -70,17 +74,20 @@ export default function RoomChat({ room }) {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim() || !room) return;
+    if (!input.trim() && !file) return; // block empty sends
+    const formData = new FormData();
+    formData.append("message", input);
+    if (file) formData.append("file", file);
     const token = Cookies.get("access_token");
     await fetch(`${API_URL}/rooms/${room.id}/send`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ message: input }),
+      body: formData,
     });
     setInput("");
+    setFile(null);
   };
 
   if (!room)
@@ -102,19 +109,69 @@ export default function RoomChat({ room }) {
           </div>
           <div>
             <div className="font-bold text-gray-900">{room.name}</div>
-            <div className="text-xs text-gray-500">{members.length} members</div>
+            <div className="text-xs text-gray-500">
+              {members.length} members
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
+        {/*
           <button className="p-2 hover:bg-gray-100 rounded">
             <Phone size={18} />
           </button>
           <button className="p-2 hover:bg-gray-100 rounded">
             <Video size={18} />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded">
+          */}
+          <button
+            className="p-2 hover:bg-gray-100 rounded"
+            onClick={() => setShowMembers((show) => !show)}
+          >
             <Users size={18} />
           </button>
+          {showMembers && (
+            <div className="absolute right-20 top-16 w-64 bg-white border rounded-xl shadow-lg z-30 py-2">
+              <button
+                onClick={() => setShowMembers(false)}
+                className="absolute top-2 right-2 text-black bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
+                style={{ fontWeight: "bold", fontSize: "1.2rem" }}
+                title="Close"
+              >
+                &times;
+              </button>
+              <div className="px-4 py-2 font-semibold border-b text-gray-700 flex items-center gap-2">
+                <Users size={16} className="text-blue-500" />
+                Members
+              </div>
+              <ul className="mt-2">
+                {members.length === 0 && (
+                  <li className="px-4 py-2 text-gray-400">No members</li>
+                )}
+                {members.map((member, idx) => {
+                  // Create initials: First 2 letters of the username, uppercase
+                  const initials = member.username
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
+                  return (
+                    <li
+                      key={member.id || idx}
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      {/* Initials in a gray circle */}
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-black">
+                        {initials}
+                      </div>
+                      <span className="truncate">{member.username}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <div className="relative">
             <button
               className="p-2 hover:bg-gray-100 rounded"
@@ -189,19 +246,29 @@ export default function RoomChat({ room }) {
                 </div>
               )}
 
-              <div
-                className={`px-4 py-2 rounded-2xl max-w-xl min-w-[80px] shadow ${
-                  isCurrentUser
-                    ? "bg-[#1e40af] text-white rounded-br-none"
-                    : "bg-white text-blue-900 rounded-bl-none"
-                }`}
-              >
-                <div className="text-sm">{msg.content}</div>
-                <div className="text-[11px] text-gray-400 mt-1 text-right">
-                  {msg.timestamp &&
-                    new Date(msg.timestamp).toLocaleTimeString()}
+              {msg.file ? (
+                <MessageFileBubble
+                  fileUrl={msg.file}
+                  fileName={msg.file_name}
+                  mimeType={msg.file_mime}
+                  fileSize={msg.file_size}
+                  pdfPages={msg.pdf_pages}
+                />
+              ) : (
+                <div
+                  className={`px-4 py-2 rounded-2xl max-w-xl min-w-[80px] shadow ${
+                    isCurrentUser
+                      ? "bg-[#1e40af] text-white rounded-br-none"
+                      : "bg-white text-blue-900 rounded-bl-none"
+                  }`}
+                >
+                  <div className="text-sm emoji-bubble ">{msg.content}</div>
+                  <div className="text-[11px] text-gray-400 mt-1 text-right">
+                    {msg.timestamp &&
+                      new Date(msg.timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Avatar on right for yourself */}
               {isCurrentUser && (
@@ -220,30 +287,13 @@ export default function RoomChat({ room }) {
       </div>
 
       {/* Input */}
-      <form
-        className="flex items-center gap-2 px-8 py-5 bg-white border-t border-gray-200"
-        onSubmit={sendMessage}
-      >
-        <button type="button" className="p-2 hover:bg-blue-50 rounded">
-          <Smile className="text-blue-500" />
-        </button>
-        <button type="button" className="p-2 hover:bg-blue-50 rounded">
-          <Paperclip className="text-blue-500" />
-        </button>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message…"
-          className="flex-1 p-3 rounded-lg bg-[#f3f5f9] outline-none text-sm"
-        />
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
-        >
-          <Send size={18} />
-        </button>
-      </form>
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        sendMessage={sendMessage}
+        setFile={setFile}
+        file={file}
+      />
       {showAddMembers && (
         <CreateRoomModal room={room} onClose={() => setShowAddMembers(false)} />
       )}

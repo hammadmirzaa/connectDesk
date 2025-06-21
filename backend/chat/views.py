@@ -17,6 +17,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.parsers import MultiPartParser, FormParser
+import mimetypes
+from PyPDF2 import PdfReader
+
+
 
 class RegisterApiView(APIView):
     def post(self, request):
@@ -130,53 +135,85 @@ class RoomMessagesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, room_id):
-        try:
-            room = ChatRoom.objects.get(id=room_id)
-        except ChatRoom.DoesNotExist:
-            return Response({"error": "Room not found"}, status=404)
-        if request.user not in room.members.all():
-            return Response({"error": "Not a member"}, status=403)
+        room = ChatRoom.objects.get(id=room_id)
         msgs = room.messages.all().order_by("timestamp")
-        return Response([
-            {
+        resp = []
+        for m in msgs:
+            file_url = request.build_absolute_uri(m.file.url) if m.file else None
+            file_name = m.file.name.split('/')[-1] if m.file else None
+            file_mime = mimetypes.guess_type(m.file.name)[0] if m.file else None
+            file_size = m.file.size if m.file else None
+            page_count = None
+
+            # Get PDF page count if it's a PDF
+            if file_mime == 'application/pdf' and m.file:
+                try:
+                    with m.file.open('rb') as f:
+                        pdf = PdfReader(f)
+                        page_count = len(pdf.pages)
+                except Exception:
+                    page_count = None
+
+            resp.append({
                 "id": m.id,
                 "sender": m.sender.username,
                 "content": m.content,
                 "timestamp": m.timestamp,
-            } for m in msgs
-        ])
+                "file": file_url,
+                "file_name": file_name,
+                "file_mime": file_mime,
+                "file_size": file_size,
+                "pdf_pages": page_count,
+            })
+        return Response(resp)
+
+
 
 class SendRoomMessageView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # <-- Add this
 
     def post(self, request, room_id):
-        content = request.data.get("message")
+        content = request.data.get("message", "")
+        file = request.FILES.get("file")  # <-- Get uploaded file
         try:
             room = ChatRoom.objects.get(id=room_id)
         except ChatRoom.DoesNotExist:
             return Response({"error": "Room not found"}, status=404)
         if request.user not in room.members.all():
             return Response({"error": "Not a member"}, status=403)
-        msg = Message.objects.create(sender=request.user, room=room, content=content)
-        
-        # --- Pusher trigger here ---
+        msg = Message.objects.create(
+            sender=request.user,
+            room=room,
+            content=content,
+            file=file  # <-- Store file
+        )
+
+        file_url = request.build_absolute_uri(msg.file.url) if msg.file else None
+        file_name = msg.file.name.split('/')[-1] if msg.file else None
+        file_mime = mimetypes.guess_type(file_name)[0] if file_name else None
+        # Real-time push:
         pusher_client.trigger(
-            f'room_{room.id}',   # <--- unique channel per room
+            f'room_{room.id}',
             'message',
             {
                 "id": msg.id,
                 "sender": msg.sender.username,
                 "content": msg.content,
                 "timestamp": msg.timestamp.isoformat(),
+                "file": file_url,
+                "file_name": file_name,
+                "file_mime": file_mime,
             }
         )
-        # --------------------------
         return Response({
             "id": msg.id,
             "sender": msg.sender.username,
             "content": msg.content,
-            "timestamp": msg.timestamp
+            "timestamp": msg.timestamp,
+            "file": file_url,
         })
+
 
 class MyRoomsApiView(APIView):
     permission_classes = [IsAuthenticated]

@@ -15,10 +15,12 @@ import chatIllustration from "../../../assets/png/Chat_illustration.png";
 import taskIllustration from "../../../assets/png/task_illustration.png";
 import { Link } from "react-router-dom";
 import SharedLayout from "../../navbar";
+import OnBoarding from "./OnBoarding";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [onboarded, setOnboarded] = useState(false);
   const { boards } = UseBoardsContext();
   const { username, fetchAllUsers, users } = UseAuthContext();
   useEffect(() => {
@@ -74,6 +76,10 @@ const Dashboard = () => {
   const mainUser = users.filter((user) => user.admin === true)[0];
 
   return (
+    <>
+          {onboarded ?
+       ( <OnBoarding onFinish={() => setOnboarded(false)} />
+      ):
     <SharedLayout>
       <div className="flex gap-6 max-w-screen-2xl w-full mx-auto py-8 px-2">
         <section className="flex-1 min-w-0">
@@ -97,7 +103,7 @@ const Dashboard = () => {
                 Create boards, track tasks, and chat live with your
                 team—ConnectDesk brings clarity to collaboration.
               </div>
-              <button className="bg-white text-blue-600 font-medium px-6 py-2 rounded-lg shadow hover:bg-blue-50 transition">
+              <button className="bg-white text-blue-600 font-medium px-6 py-2 rounded-lg shadow hover:bg-blue-50 transition" onClick={()=>setOnboarded(true)}>
                 Get Started
               </button>
             </div>
@@ -259,6 +265,8 @@ const Dashboard = () => {
         </aside>
       </div>
     </SharedLayout>
+          }
+    </>
   );
 };
 

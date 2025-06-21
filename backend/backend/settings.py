@@ -39,6 +39,9 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
+         'OPTIONS': {
+            'charset': 'utf8mb4',  
+        },
     }
 }
 
@@ -199,3 +202,5 @@ EMAIL_HOST_USER = 'connectdesk2@gmail.com'
 EMAIL_HOST_PASSWORD = 'rufeftifwfwsjqie'
 EMAIL_USE_TLS = True
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

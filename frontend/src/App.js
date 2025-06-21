@@ -10,6 +10,8 @@ import Chats from "./components/pages/chats";
 import Kanban from "./components/pages/Kanban/Kanban";
 import HomePage from "./components/pages/homePage";
 import ChatRoomsPage from './components/pages/chatRooms/ChatRoomsPage';
+import WorkspacesPage from "./components/pages/workspaces";
+import WorkspaceDetails from "./components/pages/workspaces/workspaceDetails";
 
 const App = () => {
   return (
@@ -24,6 +26,8 @@ const App = () => {
           <Route path="/kanban/:boardId" element={<Kanban />} />
           <Route path="/home" element={<HomePage/>}/>
           <Route path="/chats" element={<ChatRoomsPage />} />
+          <Route path="/workspaces" element={<WorkspacesPage/>} />
+          <Route path="/workspaces/:workspaceId" element={<WorkspaceDetails/>} />
         </Routes>
       </div>
     </Router>
