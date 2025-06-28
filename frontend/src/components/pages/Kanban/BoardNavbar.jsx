@@ -151,7 +151,7 @@ const handleAddMember = async () => {
       <nav className="flex items-center justify-between px-6 py-5 bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-semibold text-gray-800">
-            {boardState.title || "My Kanban Board"}
+            {boardState.title}
           </h1>
           <Star
             size={16}

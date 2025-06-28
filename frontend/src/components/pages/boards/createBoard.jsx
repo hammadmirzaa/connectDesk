@@ -20,17 +20,17 @@ const CreateBoardForm = ({ onClose }) => {
     fetchWorkspaces();
   }, []);
 
-  const backgroundOptions = [
-    // your predefined list of images
-    "https://images.unsplash.com/photo-1581349481708-c42e6accc346?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1607093800858-89f11382d45e?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1526403221810-81a6a226eebb?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1581092334600-7b01f1dc65b3?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
-  ];
+const backgroundOptions = [
+  "https://images.unsplash.com/photo-1612831455544-bb7f0c530e84?auto=format&fit=crop&w=1600&q=80", 
+  "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=1600&q=80", 
+  "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=1600&q=80",    
+  "https://images.unsplash.com/photo-1616401786637-1d6d9c7c4d14?auto=format&fit=crop&w=1600&q=80", 
+  "https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1616627985843-4cdb7f31c5e9?auto=format&fit=crop&w=1600&q=80", 
+  "https://images.unsplash.com/photo-1618005198919-d3d4e5a8f94c?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=1600&q=80", 
+];
+
 
 const handleSubmit = async (e) => {
   e.preventDefault();

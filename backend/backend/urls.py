@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/', include('boards.urls')),
     path('api/', include('chat.urls')),
     path('api/', include('workspaces.urls')),
+    path('api/', include('chatbot.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -16,6 +16,7 @@ import taskIllustration from "../../../assets/png/task_illustration.png";
 import { Link } from "react-router-dom";
 import SharedLayout from "../../navbar";
 import OnBoarding from "./OnBoarding";
+import ChatbotWidget from "../../chatbot/ChatBot";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
@@ -254,14 +255,7 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-          <div className="bg-white rounded-2xl shadow p-5">
-            <h4 className="font-bold text-gray-800 mb-2">Facund</h4>
-            {boards.slice(0, 4).map((board, idx) => (
-              <div key={idx} className="flex items-center gap-2 py-1">
-                <span className="text-gray-700">{board.title}</span>
-              </div>
-            ))}
-          </div>
+          <ChatbotWidget />
         </aside>
       </div>
     </SharedLayout>
