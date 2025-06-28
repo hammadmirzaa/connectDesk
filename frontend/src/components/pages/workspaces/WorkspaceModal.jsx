@@ -1,18 +1,15 @@
 // src/components/CreateWorkspaceModal.jsx
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { UseAuthContext } from "../../../context/AuthContext";
 
 // Dummy users. Replace with your user state/prop if you have one.
-const users = [
-  { username: "admin" },
-  { username: "hammad" },
-  { username: "test" },
-  { username: "hammadd" },
-];
 
 export default function CreateWorkspaceModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [selected, setSelected] = useState([]);
+  const { users } = UseAuthContext();
 
   const toggleUser = (username) => {
     setSelected((prev) =>
@@ -24,8 +21,7 @@ export default function CreateWorkspaceModal({ onClose, onCreate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Call backend here if needed
-    onCreate && onCreate({ name, members: selected });
+    onCreate && onCreate({ name,description ,members: selected });
     onClose();
   };
 
@@ -53,9 +49,19 @@ export default function CreateWorkspaceModal({ onClose, onCreate }) {
           className="mb-6 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 font-medium shadow-sm"
         />
 
+          <label className="mb-1 text-sm font-medium text-gray-700">Workspace Description</label>
+        <textarea
+          required
+          placeholder="Enter workspace description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mb-6 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 font-medium shadow-sm"
+        ></textarea>
+
         <label className="mb-1 text-sm font-medium text-gray-700">Add Members</label>
         <div className="mb-6 max-h-36 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50 p-3">
-          {users.map((u) => (
+          {users?.map((u) => {
+            return(
             <label
               key={u.username}
               className="flex items-center gap-2 py-1 px-2 rounded cursor-pointer hover:bg-gray-100"
@@ -68,7 +74,7 @@ export default function CreateWorkspaceModal({ onClose, onCreate }) {
               />
               <span className="text-gray-800">{u.username}</span>
             </label>
-          ))}
+          )})}
         </div>
 
         <div className="flex gap-2 mt-3">

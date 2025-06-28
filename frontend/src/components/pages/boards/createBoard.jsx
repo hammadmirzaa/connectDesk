@@ -2,17 +2,23 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UseGlobalContext } from "../../../context/GlobalContext";
 import { UseBoardsContext } from "../../../context/BoardsContext";
+import { useWorkspace } from "../../../context/WorkspacesContext";
 
-const CreateBoardForm = ({onClose}) => {
+const CreateBoardForm = ({ onClose }) => {
   const [title, setTitle] = useState("");
   const [selectedBg, setSelectedBg] = useState(null);
-  const [visibility, setVisibility] = useState("Workspace");
+  const [workspace, setWorkspace] = useState(null);
   const [error, setError] = useState("");
 
   const { setShowBoardForm, setBoardState } = UseGlobalContext();
   const { setBoards, boards, saveBoard } = UseBoardsContext();
   const navigate = useNavigate();
   const modalRef = useRef();
+  const { workspaces, fetchWorkspaces } = useWorkspace();
+
+  useEffect(() => {
+    fetchWorkspaces();
+  }, []);
 
   const backgroundOptions = [
     // your predefined list of images
@@ -28,6 +34,9 @@ const CreateBoardForm = ({onClose}) => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  console.log("Selected workspace ID:", workspace);  // Log the workspace ID
+
   if (!title) {
     setError("Board title is required");
     return;
@@ -37,12 +46,12 @@ const handleSubmit = async (e) => {
     const newBoard = await saveBoard({
       title,
       background_image: selectedBg,
-      visibility,
+      workspace,
     });
 
     if (!newBoard) throw new Error("Failed to create board");
 
-    setBoardState(newBoard); 
+    setBoardState(newBoard);
     setShowBoardForm(false);
     navigate(`/kanban/${newBoard.id}`);
   } catch (err) {
@@ -50,6 +59,7 @@ const handleSubmit = async (e) => {
     setError("Something went wrong while creating the board.");
   }
 };
+
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -67,7 +77,6 @@ const handleSubmit = async (e) => {
       document.removeEventListener("keydown", handleEscape);
     };
   }, [onClose]);
-
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
@@ -117,15 +126,23 @@ const handleSubmit = async (e) => {
         />
         {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
 
-        <label className="block text-sm mb-1 mt-3">Visibility</label>
+        <label className="block text-sm mb-1 mt-3">Workspaces</label>
+
         <select
-          value={visibility}
-          onChange={(e) => setVisibility(e.target.value)}
+          value={workspace}
+          onChange={(e) => {setWorkspace(e.target.value)
+          console.log("Selected workspace:", e.target.value);
+          }
+        }
           className="w-full p-2 rounded bg-gray-700 text-white mb-4"
         >
-          <option value="Workspace">Workspace</option>
-          <option value="Private">Private</option>
-          <option value="Public">Public</option>
+          {workspaces.map((w, i) => {
+            return (
+              <option key={i} value={w.id}>
+                {w.name}
+              </option>
+            );
+          })}
         </select>
 
         <p className="text-xs text-gray-400 mb-4">

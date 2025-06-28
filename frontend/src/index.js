@@ -5,6 +5,7 @@ import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { GlobalProvider } from "./context/GlobalContext";
 import { BoardsProvider } from "./context/BoardsContext";
+import { WorkspaceProvider } from "./context/WorkspacesContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -13,7 +14,9 @@ root.render(
     <AuthProvider>
       <GlobalProvider>
       <BoardsProvider>
+      <WorkspaceProvider>
         <App />
+        </WorkspaceProvider>
         </BoardsProvider>
       </GlobalProvider>
     </AuthProvider>

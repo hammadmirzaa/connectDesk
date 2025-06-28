@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useParams } from "react-router-dom";
 const BoardsContext = createContext();
 export const UseBoardsContext = () => useContext(BoardsContext);
 
@@ -7,7 +8,7 @@ export const BoardsProvider = ({ children }) => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = Cookies.get("access_token");
-
+const { boardId } = useParams();
 
   useEffect(() => {
     const token = Cookies.get("access_token");
@@ -187,6 +188,53 @@ export const BoardsProvider = ({ children }) => {
     }
   }, [token]);
 
+    const updateColumnPositionApi = async (columns, boardId) => {
+    const response = await fetch(`http://localhost:8000/api/boards/${boardId}/update-column-positions/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ positions: columns.map((col, index) => ({ column_id: col.id, position: index })) }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to update column positions');
+  };
+
+async function updateTaskPositionApi(updatedTasks, columnId) {
+  try {
+    const payload = {
+      positions: updatedTasks.map(task => ({
+        task_id: task.id,
+        position: task.position,
+        column_id: task.columnId || columnId 
+      }))
+    };
+
+    console.log("Sending task update:", payload);
+    
+    const response = await fetch(`http://localhost:8000/api/columns/${columnId}/update-task-positions/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update task positions');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating task positions:", error);
+    // Optionally revert the UI change here
+    throw error;
+  }
+}
+
+
   return (
     <BoardsContext.Provider
       value={{
@@ -202,6 +250,8 @@ export const BoardsProvider = ({ children }) => {
         updateTaskApi,
         updateColumnApi,
         token,
+        updateColumnPositionApi,
+        updateTaskPositionApi,
       }}
     >
       {children}

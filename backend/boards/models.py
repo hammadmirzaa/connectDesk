@@ -1,24 +1,73 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
+from workspaces.models import Workspace  # Import Workspace model from the workspace app
+
+# Board model with reference to Workspace
+import uuid
+from django.db import models
+from django.contrib.auth.models import User
+from workspaces.models import Workspace  # Assuming the Workspace model is in the workspace app
 
 class Board(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
-    background_image = models.URLField(max_length=1000, blank=True, null=True) 
+    background_image = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(User, related_name='created_boards', on_delete=models.CASCADE, null=True, blank=True)
-    members = models.ManyToManyField(User, related_name='boards')
+    workspace = models.ForeignKey(Workspace, related_name='boards', on_delete=models.CASCADE, null=True)  # Workspace reference
+    members = models.ManyToManyField(User, related_name='boards', blank=True)  # Board members field
+
+    def save(self, *args, **kwargs):
+        # Ensure that only members of the workspace can be added as members of the board
+        if not self.pk:  # Check if the board is being created (not updated)
+            workspace_members = self.workspace.members.all()
+            self.members.set(workspace_members)  # Set initial members to workspace members
+        super(Board, self).save(*args, **kwargs)
+
+    def add_member(self, user):
+        # Ensure the user belongs to the workspace before adding them to the board
+        if user in self.workspace.members.all():
+            self.members.add(user)
+        else:
+            raise ValueError(f"User {user.username} is not a member of the workspace.")
+
+    def remove_member(self, user):
+        # Only remove the user if they are part of the board members
+        if user in self.members.all():
+            self.members.remove(user)
+        else:
+            raise ValueError(f"User {user.username} is not a member of the board.")
+
+    def __str__(self):
+        return self.title
 
 
+
+# Column model remains the same
 class Column(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    board = models.ForeignKey(Board, related_name='columns', on_delete=models.CASCADE)  
+    board = models.ForeignKey(Board, related_name='columns', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, blank=True, null=True)
+    position = models.IntegerField(default=0)  # Add position field to store the order
+
+    class Meta:
+        ordering = ['position']  # Ensure columns are ordered by position
+
+    def __str__(self):
+        return self.title
 
 
+# Task model remains the same
 class Task(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     columnId = models.ForeignKey(Column, related_name='tasks', on_delete=models.CASCADE)
-    title = models.TextField(  blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
     completed = models.BooleanField(default=False)
+    position = models.IntegerField(default=0)  # Add position field to store the order
+
+    class Meta:
+        ordering = ['position']  # Ensure tasks are ordered by position
+
+    def __str__(self):
+        return self.title
