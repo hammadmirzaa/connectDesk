@@ -37,6 +37,8 @@ export default function ChatbotWidget() {
   }
 
   const sendMessage = async (e) => {
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     e.preventDefault()
     if (!input.trim() || isLoading) return
 
@@ -54,7 +56,7 @@ export default function ChatbotWidget() {
     try {
       const token = Cookies.get("access_token");
 
-      const response = await fetch("http://localhost:8000/api/chatbot/message/", {
+      const response = await fetch(`${apiUrl}/chatbot/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

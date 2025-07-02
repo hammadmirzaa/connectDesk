@@ -8,6 +8,8 @@ import { Edit2Icon } from "lucide-react";
 function TaskCard({ task, deleteTask, updateTask }) {
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [tempTitle, setTempTitle] = useState(task.title);
+
 
   const handleComplete = (e) => {
     e.stopPropagation();
@@ -34,10 +36,12 @@ function TaskCard({ task, deleteTask, updateTask }) {
     transition,
     transform: CSS.Transform.toString(transform),
   };
-  const toggleEditMode = () => {
-    setEditMode((prev) => !prev);
-    setMouseIsOver(false);
-  };
+const toggleEditMode = () => {
+  setTempTitle(task.title); 
+  setEditMode((prev) => !prev);
+  setMouseIsOver(false);
+};
+
 
   if (isDragging) {
     return (
@@ -56,37 +60,46 @@ function TaskCard({ task, deleteTask, updateTask }) {
     );
   }
 
-  if (editMode) {
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
+if (editMode) {
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="
+        bg-black bg-opacity-70 backdrop-blur text-white
+        p-3 text-md max-h-[300px] flex items-center
+        rounded-xl shadow-2xl cursor-grab border border-white/10
+      "
+    >
+      <textarea
         className="
-          bg-black bg-opacity-70 backdrop-blur text-white
-          p-3 text-md max-h-[300px] flex items-center
-          rounded-xl shadow-2xl cursor-grab border border-white/10
+          w-full min-h-[80px] resize-none border-none rounded
+          bg-transparent text-white focus:outline-none
+          placeholder:text-gray-400
         "
-      >
-        <textarea
-          className="
-            w-full min-h-[80px] resize-none border-none rounded
-            bg-transparent text-white focus:outline-none
-            placeholder:text-gray-400
-          "
-          value={task.title}
-          autoFocus
-          onChange={(e) => updateTask(task.id, e.target.value, task.completed)}
-          placeholder="Task Content Here"
-          onBlur={toggleEditMode}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) toggleEditMode();
-          }}
-        />
-      </div>
-    );
-  }
+        value={tempTitle}
+        onChange={(e) => setTempTitle(e.target.value)}
+        placeholder="Task Content Here"
+        autoFocus
+        onBlur={() => {
+          setEditMode(false);
+          if (tempTitle.trim() !== task.title.trim()) {
+            updateTask(task.id, tempTitle, task.completed);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault(); // Prevent newline
+            e.target.blur();    // Triggers onBlur
+          }
+        }}
+      />
+    </div>
+  );
+}
+
 
    return (
     <div

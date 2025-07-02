@@ -16,6 +16,20 @@ from .models import Board, Workspace
 from rest_framework.permissions import IsAuthenticated
 from uuid import UUID
 
+from rest_framework.generics import ListAPIView
+from .models import BoardActivity
+from .serializers import BoardActivitySerializer
+from rest_framework.permissions import IsAuthenticated
+
+class WorkspaceActivityFeed(ListAPIView):
+    serializer_class = BoardActivitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        workspace_id = self.kwargs['workspace_id']
+        return BoardActivity.objects.filter(workspace__id=workspace_id).order_by('-created_at')
+
+
 
 class AddBoardMember(APIView):
     permission_classes = [IsAuthenticated]
@@ -60,9 +74,26 @@ class ColumnViewSet(viewsets.ModelViewSet):
     serializer_class = ColumnSerializer
 
 
+# kanban/views.py
+
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        instance._activity_user = self.request.user  # For signals
+        instance._previous_completed = False
+        instance.save()
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        instance._previous_completed = instance.completed
+        instance = serializer.save()
+        instance._activity_user = self.request.user  # For signals
+        instance.save()
+
 
 
 @api_view(['POST'])

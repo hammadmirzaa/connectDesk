@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import BoardViewSet, ColumnViewSet, TaskViewSet, invite_member_view, AddBoardMember, update_column_position, update_task_position, TrackOperationAPI
+from .views import BoardViewSet, ColumnViewSet, TaskViewSet, invite_member_view, AddBoardMember, update_column_position, update_task_position, TrackOperationAPI, WorkspaceActivityFeed
 
 router = DefaultRouter()
 router.register(r'boards', BoardViewSet)
@@ -14,5 +14,7 @@ urlpatterns = [
     path('boards/<uuid:board_id>/update-column-positions/', update_column_position, name='update-column-positions'),
     path('columns/<uuid:column_id>/update-task-positions/', update_task_position, name='update-task-positions'), 
     path('track-operation/<uuid:board_id>/', TrackOperationAPI.as_view(), name='track-operation'),
+    path('workspaces/<int:workspace_id>/activity/', WorkspaceActivityFeed.as_view(), name='workspace-activity-feed'),
+
 ]
 

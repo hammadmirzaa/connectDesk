@@ -21,7 +21,7 @@ const Signup = () => {
     e.preventDefault();
     const result = await registerUser(formData.username, formData.email, formData.password);
     if (result.success) {
-      navigate("/dashboard");
+      navigate("/login");
     } else {
       alert("Signup failed: " + result.error);
     }

@@ -7,7 +7,7 @@ import { useWorkspace } from "../../../context/WorkspacesContext";
 
 export default function WorkspacesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { workspaces, fetchWorkspaces, createWorkspace } = useWorkspace();
+  const { workspaces, fetchWorkspaces, createWorkspace, fetchWorkspaceActivity } = useWorkspace();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,9 +20,11 @@ export default function WorkspacesPage() {
     setShowCreateModal(false);
   };
 
-  console.log(
-    workspaces?.map((ws) => ws?.members?.length > 0)
-  )
+  const showWorkspaceDetails = async(id)=>{
+    await fetchWorkspaceActivity(id)
+     navigate(`/workspaces/${id}`)
+  }
+
   const wsMembersLength = workspaces?.map((ws) => ws?.members?.length > 0);
   const wsMembers = workspaces?.map((ws) => ws?.members);
   return (
@@ -97,15 +99,12 @@ export default function WorkspacesPage() {
                     <div>No members available</div>
                   )}
                 </div>
-                <div className="flex gap-2 w-full">
+                <div className="flex gap-2 w-[50%] mt-3 ">
                   <button
                     className="flex-1 px-2 py-1 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                    onClick={() => navigate(`/workspaces/${ws?.id}`)}
+                    onClick={() => showWorkspaceDetails(ws?.id)}
                   >
                     Visit
-                  </button>
-                  <button className="flex-1 px-4 py-1 rounded-xl bg-sky-100 text-sky-700 font-semibold hover:bg-sky-200 transition flex items-center justify-center gap-1">
-                    <MessageCircle size={18} /> Send Message
                   </button>
                 </div>
               </div>

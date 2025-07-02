@@ -3,12 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from workspaces.models import Workspace  # Import Workspace model from the workspace app
 
-# Board model with reference to Workspace
-import uuid
-from django.db import models
-from django.contrib.auth.models import User
-from workspaces.models import Workspace  # Assuming the Workspace model is in the workspace app
-
 class Board(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
@@ -24,6 +18,11 @@ class Board(models.Model):
             workspace_members = self.workspace.members.all()
             self.members.set(workspace_members)  # Set initial members to workspace members
         super(Board, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Board.objects.get(pk=self.pk)
+            self._previous_title = old.title
+        super().save(*args, **kwargs)
 
     def add_member(self, user):
         # Ensure the user belongs to the workspace before adding them to the board
@@ -53,6 +52,11 @@ class Column(models.Model):
 
     class Meta:
         ordering = ['position']  # Ensure columns are ordered by position
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Column.objects.get(pk=self.pk)
+            self._previous_title = old.title
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -69,5 +73,28 @@ class Task(models.Model):
     class Meta:
         ordering = ['position']  # Ensure tasks are ordered by position
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Task.objects.get(pk=self.pk)
+            self._previous_title = old.title
+            self._previous_completed = old.completed
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
+    
+
+
+class BoardActivity(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='board_activities')
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    column = models.ForeignKey(Column, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    operation = models.CharField(max_length=20)  # create, update, delete, complete, incomplete, add_member, etc.
+    details = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

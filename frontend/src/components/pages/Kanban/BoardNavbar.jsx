@@ -32,6 +32,9 @@ function getInitial(name, email) {
 }
 
 const BoardNavbar = ({ savedBoards }) => {
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const [activeTab, setActiveTab] = useState("members");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteStatus, setInviteStatus] = useState("");
@@ -41,6 +44,7 @@ const BoardNavbar = ({ savedBoards }) => {
 
   const { boardMembers = [] } = UseBoardsContext();
   const { users } = UseAuthContext();
+  
 
   const currentUser = users.filter((user) => user.admin === true)[0] || {
     name: "Admin",
@@ -49,7 +53,6 @@ const BoardNavbar = ({ savedBoards }) => {
 
   const [showShare, setShowShare] = useState(false);
 
-  // For demo, just make a fake link on each open
   const [shareLink, setShareLink] = useState("");
 
   const handleShareOpen = () => {
@@ -85,7 +88,7 @@ const BoardNavbar = ({ savedBoards }) => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:8000/api/boards/${boardId}/invite-member/`,
+        `${apiUrl}/boards/${boardId}/invite-member/`,
         {
           method: "POST",
           headers: {
@@ -120,7 +123,7 @@ const handleAddMember = async () => {
   const token = Cookies.get("access_token");
   try {
     const response = await fetch(
-      `http://localhost:8000/api/boards/${boardId}/add-member/`,
+      `${apiUrl}/boards/${boardId}/add-member/`,
       {
         method: "POST",
         headers: {

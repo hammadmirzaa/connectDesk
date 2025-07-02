@@ -23,8 +23,8 @@ const navLinks = [
   { name: "Boards", link: "/boards", icon: <BoardIcon /> },
   { name: "Chats", link: "/chats", icon: <ChatIcon /> },
   { name: "Workspaces", link: "/workspaces", icon: <WorkspaceIcon /> },
-  { name: "Inbox", link: "/inbox", icon: <InboxIcon /> },
-  { name: "Tasks", link: "/tasks", icon: <TaskIcon /> },
+  // { name: "Inbox", link: "/inbox", icon: <InboxIcon /> },
+  // { name: "Tasks", link: "/tasks", icon: <TaskIcon /> },
 ];
 
 const SharedLayout = ({ children }) => {

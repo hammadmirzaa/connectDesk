@@ -2,6 +2,17 @@ from rest_framework import serializers
 from .models import Board, Column, Task
 from django.contrib.auth.models import User
 from .models import Board, Workspace
+from .models import BoardActivity
+
+class BoardActivitySerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    message = serializers.CharField(source='details', read_only=True)
+
+    class Meta:
+        model = BoardActivity
+        fields = ['username', 'message', 'created_at']
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

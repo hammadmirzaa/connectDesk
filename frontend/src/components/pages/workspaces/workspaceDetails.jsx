@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Users, Wifi, UserPlus, Bell } from "lucide-react";
 import SharedLayout from "../../navbar";
+import { useWorkspace } from "../../../context/WorkspacesContext";
+import { useParams } from "react-router-dom";
 
 // Dummy Data Example
 const workspace = {
@@ -51,6 +53,12 @@ function getInitials(name) {
 
 export default function WorkspaceDetails() {
   const [showAddMember, setShowAddMember] = useState(false);
+  const {activities, workspaces} = useWorkspace()
+  const {workspaceId} = useParams()
+
+const authorizedUsers = workspaces?.find((ws) => ws.id === Number(workspaceId));
+
+  console.log("authorizedUsers:", authorizedUsers)
 
   return (
     <SharedLayout>
@@ -72,7 +80,7 @@ export default function WorkspaceDetails() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full max-w-5xl">
         <div className="bg-white rounded-2xl p-6 shadow flex items-center justify-between border border-gray-100">
           <div>
-            <div className="text-2xl font-bold text-blue-900">{workspace.authorizedUsers}</div>
+            <div className="text-2xl font-bold text-blue-900">{authorizedUsers?.members?.length}</div>
             <div className="text-gray-400 text-sm mb-1">Authorized Users</div>
             <a className="text-teal-600 text-xs font-medium flex items-center gap-1 hover:underline cursor-pointer">
               Check out <span aria-hidden>↗</span>
@@ -107,16 +115,16 @@ export default function WorkspaceDetails() {
           <Bell className="text-blue-400" />
         </div>
         <div className="divide-y">
-          {workspace.activities.map((a) => (
+          {activities.map((a) => (
             <div
               key={a.id}
               className="px-6 py-3 flex items-center justify-between hover:bg-blue-50/40 transition"
             >
               <div>
-                <div className="text-[15px] text-blue-900">{a.message}</div>
-                <div className="text-xs text-teal-600">by {a.by}</div>
+                <div className="text-[15px] text-blue-900">{a?.message}</div>
+                <div className="text-xs text-teal-600">by {a?.username}</div>
               </div>
-              <div className="text-xs text-gray-500 min-w-fit">{a.date}</div>
+              <div className="text-xs text-gray-500 min-w-fit">{a?.created_by}</div>
             </div>
           ))}
         </div>

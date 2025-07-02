@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+from decouple import config
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -205,3 +205,6 @@ EMAIL_USE_TLS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+API_BASE = config("API_BASE", default="http://localhost:8000/api")
+COHERE_API_KEY = config("COHERE_API_KEY")

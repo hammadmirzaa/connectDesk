@@ -32,7 +32,8 @@ WALLPAPERS = [
     "https://images.unsplash.com/photo-1604152135912-04a693e20f04?auto=format&fit=crop&w=1600&q=80",
 ]
 
-API_BASE = "http://localhost:8000/api"
+API_BASE = settings.API_BASE
+
 
 def extract_json_from_text(text):
         # Extract the first {...} JSON object from text
@@ -257,7 +258,7 @@ class ChatbotService:
 
 
     def ai_understand_message(self, message):
-        co = cohere.Client('tCYz6qQrYbHADcOxrlUqx9QZlxtmWQ4JOdl1N673')
+        co = cohere.Client(settings.COHERE_API_KEY)
         system_prompt = (
             "You are a helpful assistant for a workspace management app like Trello. "
             "Understand the user's intent based on their input. "

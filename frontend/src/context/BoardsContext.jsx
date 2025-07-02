@@ -9,6 +9,8 @@ export const BoardsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const token = Cookies.get("access_token");
 const { boardId } = useParams();
+const apiUrl = process.env.REACT_APP_API_URL;
+console.log("API URL:", process.env.REACT_APP_API_URL);
 
   useEffect(() => {
     const token = Cookies.get("access_token");
@@ -21,7 +23,7 @@ const { boardId } = useParams();
   const loadBoards = async () => {
   const token = Cookies.get("access_token");
     try {
-      const res = await fetch("http://localhost:8000/api/boards/", {
+      const res = await fetch(`${apiUrl}/boards/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +44,7 @@ const { boardId } = useParams();
   const token = Cookies.get("access_token");
 
     const isUpdate = !!board.id;
-    const url = `http://localhost:8000/api/boards/${
+    const url = `${apiUrl}/boards/${
       isUpdate ? board.id + "/" : ""
     }`;
 
@@ -77,7 +79,7 @@ const { boardId } = useParams();
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch("http://localhost:8000/api/columns/", {
+      const res = await fetch(`${apiUrl}/columns/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +101,7 @@ const { boardId } = useParams();
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/columns/${column.id}/`,
+        `${apiUrl}/columns/${column.id}/`,
         {
           method: "PATCH",
           headers: {
@@ -122,7 +124,7 @@ const { boardId } = useParams();
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch(`http://localhost:8000/api/tasks/${task.id}/`, {
+      const res = await fetch(`${apiUrl}/tasks/${task.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +143,7 @@ const { boardId } = useParams();
 
   const deleteColumnApi = async (columnId) => {
     try {
-      await fetch(`http://localhost:8000/api/columns/${columnId}/`, {
+      await fetch(`${apiUrl}/columns/${columnId}/`, {
         method: "DELETE",
       });
       await loadBoards();
@@ -154,7 +156,7 @@ const { boardId } = useParams();
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch("http://localhost:8000/api/tasks/", {
+      const res = await fetch(`${apiUrl}/tasks/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,7 +175,7 @@ const { boardId } = useParams();
 
   const deleteTaskApi = async (taskId) => {
     try {
-      await fetch(`http://localhost:8000/api/tasks/${taskId}/`, {
+      await fetch(`${apiUrl}/tasks/${taskId}/`, {
         method: "DELETE",
       });
       loadBoards();
@@ -189,7 +191,7 @@ const { boardId } = useParams();
   }, [token]);
 
     const updateColumnPositionApi = async (columns, boardId) => {
-    const response = await fetch(`http://localhost:8000/api/boards/${boardId}/update-column-positions/`, {
+    const response = await fetch(`${apiUrl}/boards/${boardId}/update-column-positions/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -212,7 +214,7 @@ async function updateTaskPositionApi(updatedTasks, columnId) {
 
     console.log("Sending task update:", payload);
     
-    const response = await fetch(`http://localhost:8000/api/columns/${columnId}/update-task-positions/`, {
+    const response = await fetch(`${apiUrl}/columns/${columnId}/update-task-positions/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
