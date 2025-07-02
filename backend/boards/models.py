@@ -18,11 +18,6 @@ class Board(models.Model):
             workspace_members = self.workspace.members.all()
             self.members.set(workspace_members)  # Set initial members to workspace members
         super(Board, self).save(*args, **kwargs)
-    def save(self, *args, **kwargs):
-        if self.pk:
-            old = Board.objects.get(pk=self.pk)
-            self._previous_title = old.title
-        super().save(*args, **kwargs)
 
     def add_member(self, user):
         # Ensure the user belongs to the workspace before adding them to the board

@@ -71,9 +71,14 @@ class BoardSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context['request']
         creator = request.user
-          # Extract workspace name and lookup the workspace
+
+        # Extract workspace name and lookup the workspace
         workspace_name = validated_data.pop('workspace', None)
-        workspace = Workspace.objects.get(name=workspace_name)  # Look up workspace by name
+        workspace = Workspace.objects.filter(name=workspace_name).first()
+
+        if not workspace:
+            raise serializers.ValidationError("Workspace with this name does not exist.")
+
         # Extract member_ids if provided
         members = validated_data.pop('member_ids', [])
         board = Board.objects.create(creator=creator, workspace=workspace, **validated_data)
@@ -81,6 +86,7 @@ class BoardSerializer(serializers.ModelSerializer):
         if members:
             board.members.add(*members)
         return board
+
 
     def update(self, instance, validated_data):
         members = validated_data.pop('member_ids', None)
