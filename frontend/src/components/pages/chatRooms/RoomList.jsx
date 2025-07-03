@@ -41,11 +41,11 @@ export default function RoomList({ onSelectRoom, onCreate }) {
               onClick={() => onSelectRoom(room)}
             >
               <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm">
-                {room.name[0]}
+                {room?.name[0]}
               </div>
               <div className="flex-1">
-                <div className="font-medium text-gray-800 text-sm">{room.name}</div>
-                <div className="text-xs text-gray-500">{room.lastMessage || "No messages yet"}</div>
+                <div className="font-medium text-gray-800 text-sm">{room?.name}</div>
+                <div className="text-xs text-gray-500">{room?.last_message?.content || "No messages yet"}</div>
               </div>
             </li>
           ))}

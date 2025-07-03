@@ -69,10 +69,13 @@ class Task(models.Model):
         ordering = ['position']  # Ensure tasks are ordered by position
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if self.pk and Task.objects.filter(pk=self.pk).exists():
             old = Task.objects.get(pk=self.pk)
             self._previous_title = old.title
             self._previous_completed = old.completed
+        else:
+            self._previous_title = None
+            self._previous_completed = None
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -85,7 +88,7 @@ class BoardActivity(models.Model):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='board_activities')
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
     column = models.ForeignKey(Column, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
-    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="activities" , null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     operation = models.CharField(max_length=20)  # create, update, delete, complete, incomplete, add_member, etc.
     details = models.TextField(blank=True, null=True)

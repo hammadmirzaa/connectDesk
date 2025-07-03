@@ -12,23 +12,77 @@ import HomePage from "./components/pages/homePage";
 import ChatRoomsPage from './components/pages/chatRooms/ChatRoomsPage';
 import WorkspacesPage from "./components/pages/workspaces";
 import WorkspaceDetails from "./components/pages/workspaces/workspaceDetails";
+import SettingsPage from "./components/pages/settings";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
       <div className="" >
-        <Routes>
-          <Route path="/" element={<HomePage/>}/>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/boards" element={<Boards />} />
-          {/* <Route path="/chats" element={<Chats />} /> */}
-          <Route path="/kanban/:boardId" element={<Kanban />} />
-          <Route path="/chats" element={<ChatRoomsPage />} />
-          <Route path="/workspaces" element={<WorkspacesPage/>} />
-          <Route path="/workspaces/:workspaceId" element={<WorkspaceDetails/>} />
-        </Routes>
+       <Routes>
+  <Route path="/" element={<HomePage />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/signup" element={<SignUp />} />
+
+  {/* Protected Routes */}
+  <Route
+    path="/dashboard"
+    element={
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/boards"
+    element={
+      <ProtectedRoute>
+        <Boards />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/kanban/:boardId"
+    element={
+      <ProtectedRoute>
+        <Kanban />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/chats"
+    element={
+      <ProtectedRoute>
+        <ChatRoomsPage />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/workspaces"
+    element={
+      <ProtectedRoute>
+        <WorkspacesPage />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/workspaces/:workspaceId"
+    element={
+      <ProtectedRoute>
+        <WorkspaceDetails />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/settings"
+    element={
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
+
       </div>
     </Router>
   );

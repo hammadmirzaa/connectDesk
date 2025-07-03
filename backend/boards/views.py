@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 import re
+from rest_framework.decorators import action
 
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -54,6 +55,30 @@ class AddBoardMember(APIView):
         # Add the user to the board members if they are part of the workspace
         board.members.add(user)
         return Response({"message": f"User {user.username} added to the board."}, status=status.HTTP_200_OK)
+    
+class RemoveBoardMember(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, board_id):
+        # Get the board object
+        board = get_object_or_404(Board, id=board_id)
+
+        # Get the user ID from the request
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if the user exists
+        user = get_object_or_404(User, id=user_id)
+
+        # Check if the user is a member of the board
+        if user not in board.members.all():
+            return Response({"error": f"User {user.username} is not a member of the board."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Remove the user from the board members
+        board.members.remove(user)
+        return Response({"message": f"User {user.username} removed from the board."}, status=status.HTTP_200_OK)
 
 
 
@@ -67,6 +92,21 @@ class BoardViewSet(viewsets.ModelViewSet):
         return Board.objects.filter(
             models.Q(creator=user) | models.Q(members=user)
         ).distinct()
+    
+    @action(detail=True, methods=["post"], url_path="remove-member")
+    def remove_member(self, request, pk=None):
+        board = self.get_object()
+        user_id = request.data.get("user_id")
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        board.members.remove(user)
+        board.save()
+
+        return Response({"detail": "Member removed successfully."}, status=status.HTTP_200_OK)
 
 
 class ColumnViewSet(viewsets.ModelViewSet):

@@ -8,7 +8,6 @@ export const BoardsProvider = ({ children }) => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = Cookies.get("access_token");
-const { boardId } = useParams();
 const apiUrl = process.env.REACT_APP_API_URL;
 console.log("API URL:", process.env.REACT_APP_API_URL);
 
@@ -68,7 +67,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
       } else {
         setBoards((prev) => [...prev, savedBoard]);
       }
-
+      loadBoards()
       return savedBoard;
     } catch (error) {
       console.error("Error saving board:", error);
@@ -173,16 +172,28 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
     }
   };
 
-  const deleteTaskApi = async (taskId) => {
-    try {
-      await fetch(`${apiUrl}/tasks/${taskId}/`, {
-        method: "DELETE",
-      });
-      loadBoards();
-    } catch (error) {
-      console.error("Error deleting task:", error);
+const deleteTaskApi = async (taskId) => {
+  try {
+
+    const response = await fetch(`${apiUrl}/tasks/${taskId}/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to delete task");
     }
-  };
+
+    loadBoards();
+  } catch (error) {
+    console.error("Error deleting task:", error);
+  }
+};
 
   useEffect(() => {
     if (token) {
@@ -236,6 +247,30 @@ async function updateTaskPositionApi(updatedTasks, columnId) {
   }
 }
 
+const handleRemoveMember = async (boardId, userId) => {
+  console.log("Removing member:", userId);
+  try {
+    const response = await fetch(`${apiUrl}/boards/${boardId}/remove-member/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+      body: JSON.stringify({ user_id: userId }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || "Failed to remove member");
+    }
+
+    loadBoards(); 
+  } catch (error) {
+    console.error("Remove member error:", error.message);
+  }
+};
+
+
 
   return (
     <BoardsContext.Provider
@@ -254,6 +289,7 @@ async function updateTaskPositionApi(updatedTasks, columnId) {
         token,
         updateColumnPositionApi,
         updateTaskPositionApi,
+        handleRemoveMember
       }}
     >
       {children}

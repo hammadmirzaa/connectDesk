@@ -10,10 +10,19 @@ class WorkspaceActivitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
 class WorkspaceSerializer(serializers.ModelSerializer):
     activities = WorkspaceActivitySerializer(many=True, read_only=True)
-    members = serializers.StringRelatedField(many=True)  # Shows the username
+    members = UserSerializer(many=True, read_only=True)
+    board_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Workspace
-        fields = ['id', 'name', 'description', 'created_by', 'members', 'activities']
+        fields = ['id', 'name', 'description', 'created_by', 'members', 'activities', 'board_count']
+
+    def get_board_count(self, obj):
+        return obj.boards.count()

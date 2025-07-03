@@ -1,6 +1,6 @@
 
 
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed, pre_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import Board, Column, Task, BoardActivity
@@ -168,11 +168,18 @@ def task_saved(sender, instance, created, **kwargs):
             )
 
 
-@receiver(post_delete, sender=Task)
+@receiver(pre_delete, sender=Task)
 def task_deleted(sender, instance, **kwargs):
     user = getattr(instance, '_activity_user', None)
+    column = instance.columnId
+    board = column.board if column else None
+    workspace = board.workspace if board else None
+
+    if not (workspace and board and column):
+        return  # avoid logging incomplete/invalid entries
+
     details = f"Task '{instance.title}' deleted."
-    log_activity(user, 'delete_task', instance.columnId.board.workspace, board=instance.columnId.board, column=instance.columnId, task=instance, details=details)
+    log_activity(user, 'delete_task', workspace, board=board, column=column, task=None, details=details)
 
 
 # --- Track Board Member Add/Remove ---

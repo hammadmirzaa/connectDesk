@@ -217,11 +217,27 @@ class SendRoomMessageView(APIView):
 
 class MyRoomsApiView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         rooms = request.user.chatrooms.all()
-        return Response([
-            {"id": r.id, "name": r.name} for r in rooms
-        ])
+        response = []
+
+        for room in rooms:
+            last_msg = room.messages.order_by('-timestamp').first()
+            last_message = {
+                "sender": last_msg.sender.username,
+                "content": last_msg.content,
+                "timestamp": last_msg.timestamp,
+            } if last_msg else None
+
+            response.append({
+                "id": room.id,
+                "name": room.name,
+                "last_message": last_message
+            })
+
+        return Response(response)
+
     
 class RoomMembersApiView(APIView):
     permission_classes = [IsAuthenticated]

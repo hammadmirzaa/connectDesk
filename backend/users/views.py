@@ -13,6 +13,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from rest_framework.generics import ListAPIView
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import update_session_auth_hash
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomLoginView(APIView):
@@ -76,15 +82,50 @@ class UserListView(ListAPIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        response = Response({"message": "Logged out."}, status=200)
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token") 
+        return response
+        
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        data = request.data
+
+        full_name = data.get("full_name", "")
+        if full_name:
+            parts = full_name.strip().split(" ", 1)
+            user.first_name = parts[0]
+            user.last_name = parts[1] if len(parts) > 1 else ""
+
+        user.username = data.get("username", user.username)
+        user.email = data.get("email", user.email)
+        user.save()
+        return Response({"message": "Profile updated successfully"})
+
+    
+
+class UpdatePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({"message": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
-        except KeyError:
-            return Response({"error": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST)
-        except TokenError:
-            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        if not user.check_password(current_password):
+            return Response({"error": "Incorrect current password"}, status=400)
+
+        if new_password != confirm_password:
+            return Response({"error": "New passwords do not match"}, status=400)
+
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(request, user)
+        return Response({"message": "Password updated successfully"})
+

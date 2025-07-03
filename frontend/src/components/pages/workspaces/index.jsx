@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, MessageCircle, PlusCircle } from "lucide-react";
+import { LayoutTemplate } from "lucide-react"; // modern icon
 import CreateWorkspaceModal from "./WorkspaceModal";
 import SharedLayout from "../../navbar";
 import { useWorkspace } from "../../../context/WorkspacesContext";
@@ -14,19 +14,19 @@ export default function WorkspacesPage() {
     fetchWorkspaces();
   }, []);
 
-  // Handle workspace creation
   const handleCreateWorkspace = async (data) => {
-    await createWorkspace(data.name, data.description, data.members); 
+    await createWorkspace(data.name, data.description, data.members);
     setShowCreateModal(false);
   };
 
-  const showWorkspaceDetails = async(id)=>{
-    await fetchWorkspaceActivity(id)
-     navigate(`/workspaces/${id}`)
-  }
+  const showWorkspaceDetails = async (id) => {
+    await fetchWorkspaceActivity(id);
+    navigate(`/workspaces/${id}`);
+  };
 
   const wsMembersLength = workspaces?.map((ws) => ws?.members?.length > 0);
   const wsMembers = workspaces?.map((ws) => ws?.members);
+
   return (
     <SharedLayout>
       <div className="min-h-screen bg-[#f8fafc] py-16 px-12 flex flex-col items-center">
@@ -41,25 +41,28 @@ export default function WorkspacesPage() {
             + Create Workspace
           </button>
         </div>
+
         <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-10">
           {workspaces?.map((ws) => (
             <div
               key={ws?.id}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col items-center relative group"
+              className="bg-white rounded-3xl shadow-lg overflow-hidden flex flex-col items-center relative group transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl border border-gray-100"
               style={{ minWidth: 320 }}
             >
-                          {/* Header with optional background */}
+              {/* Header */}
               <div
-                className="w-full h-24 bg-cover bg-center relative"
+                className="w-full h-24 bg-center bg-repeat relative"
                 style={{
-                  background: ws.background
-                    ? `url(${ws.background}) center/cover`
-                    : `linear-gradient(90deg, ${ws.groupColor} 0%, #c7d2fe 100%)`,
+                  backgroundImage:
+                    ws.background
+                      ? `url(${ws.background})`
+                      : `url("https://www.heropatterns.com/static/media/topography.26edb5a7.svg"), linear-gradient(90deg, ${ws.groupColor} 0%, #c7d2fe 100%)`,
+                  backgroundSize: "cover",
+                  backgroundBlendMode: "overlay",
                 }}
               >
-                {/* Group icon in hex shape */}
                 <div
-                  className="absolute left-1/2 -bottom-8 -translate-x-1/2 bg-white rounded-full p-1 shadow"
+                  className="absolute left-1/2 -bottom-8 -translate-x-1/2 bg-white rounded-full p-1 shadow-xl"
                   style={{
                     width: 70,
                     height: 70,
@@ -69,15 +72,16 @@ export default function WorkspacesPage() {
                     border: "4px solid #f8fafc",
                   }}
                 >
-                  <Users size={42} color={ws.groupColor} />
+                  <LayoutTemplate size={40} color={ws.groupColor || "#3b82f6"} />
                 </div>
               </div>
-              {/* Card Content */}
+
+              {/* Body */}
               <div className="pt-14 pb-8 px-6 flex flex-col items-center w-full">
-                <div className="font-bold text-lg text-blue-900 mb-1">
+                <div className="font-bold text-lg text-blue-900 mb-1 tracking-tight">
                   {ws?.name}
                 </div>
-                <div className="text-sm text-gray-400 mb-4 text-center">
+                <div className="text-sm text-gray-500 mb-4 text-center leading-snug">
                   {ws?.description}
                 </div>
 
@@ -86,22 +90,24 @@ export default function WorkspacesPage() {
                     ws.members.map((m, i) => (
                       <div
                         key={i}
-                        className="w-9 h-9 bg-blue-100 border-2 border-white rounded-full flex items-center justify-center font-bold text-blue-700 text-sm"
+                        className="w-9 h-9 bg-blue-100 border-2 border-white rounded-full flex items-center justify-center font-bold text-blue-700 text-sm hover:scale-105 transition"
                         style={{
                           zIndex: ws.members.length - i,
                           boxShadow: "0 2px 6px rgba(56,189,248,0.09)",
                         }}
+                        title={m}
                       >
-                        {m[0]?.toUpperCase()}
+                        {m?.username[0]?.toUpperCase()}
                       </div>
                     ))
                   ) : (
-                    <div>No members available</div>
+                    <div className="text-gray-400 text-sm">No members</div>
                   )}
                 </div>
-                <div className="flex gap-2 w-[50%] mt-3 ">
+
+                <div className="flex gap-2 w-[50%] mt-3">
                   <button
-                    className="flex-1 px-2 py-1 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition text-sm shadow-sm"
                     onClick={() => showWorkspaceDetails(ws?.id)}
                   >
                     Visit

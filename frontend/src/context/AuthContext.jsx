@@ -11,46 +11,45 @@ export const AuthProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const token = Cookies.get("access_token");
 
-const loginUser = async (username, password) => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/users/login/", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+  const loginUser = async (username, password) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/users/login/", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Login failed");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Login failed");
+      }
+
+      const data = await response.json();
+      if (data.access) {
+        Cookies.set("access_token", data.access, { sameSite: "Lax" });
+      }
+      if (data.refresh) {
+        Cookies.set("refresh_token", data.refresh, { sameSite: "Lax" });
+      }
+
+      setUser(data.username);
+      setUsername(data.username);
+      return { success: true, data: data.username };
+    } catch (error) {
+      console.error("Login error:", error.message);
+      return { success: false, error: error.message };
     }
+  };
 
-    const data = await response.json();
-    if (data.access) {
-      Cookies.set("access_token", data.access, { sameSite: "Lax" });
-    }
-    if (data.refresh) {
-      Cookies.set("refresh_token", data.refresh, { sameSite: "Lax" });
-    }
-
-    setUser(data.username);
-    setUsername(data.username);
-    return { success: true, data: data.username };
-  } catch (error) {
-    console.error("Login error:", error.message);
-    return { success: false, error: error.message };
-  }
-};
-
-
-  const registerUser = async (username, email, password) => {
+  const registerUser = async (full_name, username, email, password) => {
     try {
       const response = await fetch("http://127.0.0.1:8000/users/signup/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ full_name, username, email, password }),
       });
 
       if (!response.ok) {
@@ -93,6 +92,80 @@ const loginUser = async (username, password) => {
     }
   };
 
+  // Inside AuthProvider in AuthContext.js
+
+const updateProfile = async (full_name, username, email) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/users/update-profile/", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+      body: JSON.stringify({ full_name, username, email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(JSON.stringify(errorData));
+    }
+
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    console.error("Profile update error:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+const changePassword = async (currentPassword, newPassword, confirmPassword) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/users/change-password/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword, confirm_password: confirmPassword }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(JSON.stringify(errorData));
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Password change error:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+const logoutUser = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/users/logout/", {
+      method: "POST",
+      credentials: "include", 
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Logout failed");
+    }
+
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+
+    setUser(null);
+    setUsername("");
+    return { success: true };
+  } catch (error) {
+    console.error("Logout error:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+
   useEffect(() => {
     if (token) {
       fetchAllUsers();
@@ -101,7 +174,7 @@ const loginUser = async (username, password) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loginUser, registerUser, username, users, fetchAllUsers }}
+      value={{ user, loginUser, registerUser, username, users, fetchAllUsers, changePassword, updateProfile, logoutUser  }}
     >
       {children}
     </AuthContext.Provider>

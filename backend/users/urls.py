@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LogoutView, CustomLoginView, UserListView
+from .views import RegisterView, LogoutView, CustomLoginView, UserListView, UpdateProfileView, UpdatePasswordView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -29,6 +29,8 @@ urlpatterns = [
      path('users/', UserListView.as_view(), name='user-list'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
+   path('update-profile/', UpdateProfileView.as_view()),
+    path('change-password/', UpdatePasswordView.as_view()),
 
     # Swagger
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

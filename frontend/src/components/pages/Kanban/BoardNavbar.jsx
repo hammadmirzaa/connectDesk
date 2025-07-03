@@ -14,6 +14,7 @@ import { UseGlobalContext } from "../../../context/GlobalContext";
 import { UseBoardsContext } from "../../../context/BoardsContext";
 import { UseAuthContext } from "../../../context/AuthContext";
 import { useParams } from "react-router-dom";
+import TrashIcon from "../../../assets/icons/TrashIcon";
 
 // Dummy fallback user logo SVG (circle)
 function DummyAvatar({ initial = "?" }) {
@@ -32,7 +33,6 @@ function getInitial(name, email) {
 }
 
 const BoardNavbar = ({ savedBoards }) => {
-
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const [activeTab, setActiveTab] = useState("members");
@@ -42,9 +42,16 @@ const BoardNavbar = ({ savedBoards }) => {
   const { boardState } = UseGlobalContext();
   const { boardId } = useParams();
 
-  const { boardMembers = [] } = UseBoardsContext();
+  const {
+    boardMembers = [],
+    boards,
+    handleRemoveMember,
+    loadBoards,
+  } = UseBoardsContext();
   const { users } = UseAuthContext();
-  
+
+  const currentBoard = boards.find((board) => board.id === boardId);
+  console.log("currentBoard:", currentBoard);
 
   const currentUser = users.filter((user) => user.admin === true)[0] || {
     name: "Admin",
@@ -54,6 +61,10 @@ const BoardNavbar = ({ savedBoards }) => {
   const [showShare, setShowShare] = useState(false);
 
   const [shareLink, setShareLink] = useState("");
+
+  const handleRemoveBoardMember = async (boardId, userId) => {
+    await handleRemoveMember(boardId, userId);
+  };
 
   const handleShareOpen = () => {
     setShareLink(
@@ -71,7 +82,7 @@ const BoardNavbar = ({ savedBoards }) => {
   };
 
   const members = boardMembers.length
-    ? boardMembers
+    ? currentBoard.members
     : [
         { name: "Hamadbaig25", email: "hamad@desk.com" },
         { name: "Waleed Sheikh", email: "waleed@desk.com" },
@@ -112,41 +123,38 @@ const BoardNavbar = ({ savedBoards }) => {
     }
   };
 
-const handleAddMember = async () => {
-  if (!selectedUser) {
-    setInviteStatus("Please select a user to add.");
-    return;
-  }
+  const handleAddMember = async () => {
+    if (!selectedUser) {
+      setInviteStatus("Please select a user to add.");
+      return;
+    }
 
-  setInviteStatus("Adding user...");
+    setInviteStatus("Adding user...");
 
-  const token = Cookies.get("access_token");
-  try {
-    const response = await fetch(
-      `${apiUrl}/boards/${boardId}/add-member/`,
-      {
+    const token = Cookies.get("access_token");
+    try {
+      const response = await fetch(`${apiUrl}/boards/${boardId}/add-member/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ user_id: selectedUser.id }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setInviteStatus(data.message || "User added!");
+      } else {
+        setInviteStatus(data.error || "Failed to add user.");
       }
-    );
-
-    const data = await response.json();
-    if (response.ok) {
-      setInviteStatus(data.message || "User added!");
-    } else {
-      setInviteStatus(data.error || "Failed to add user.");
+      loadBoards();
+      setSelectedUser(null);
+      setTimeout(() => setInviteStatus(""), 1500);
+    } catch (err) {
+      setInviteStatus("Failed to add user.");
     }
-    setSelectedUser(null);
-    setTimeout(() => setInviteStatus(""), 1500);
-  } catch (err) {
-    setInviteStatus("Failed to add user.");
-  }
-};
-
+  };
 
   return (
     <>
@@ -269,7 +277,11 @@ const handleAddMember = async () => {
                     {users.map((user) => (
                       <div
                         key={user.id}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 border border-gray-100 cursor-pointer"
+                        className={`flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition ${
+                          selectedUser?.id === user.id
+                            ? "bg-blue-100 border-blue-400"
+                            : "bg-gray-50 border-gray-100"
+                        }`}
                         onClick={() => setSelectedUser(user)}
                       >
                         <DummyAvatar
@@ -299,16 +311,40 @@ const handleAddMember = async () => {
                     Board members
                   </div>
                   <div className="max-h-[120px] overflow-y-auto flex flex-col gap-2">
-                    {members.map((m, idx) => (
+                    {currentBoard?.members?.map((m, idx) => (
                       <div
                         key={m.email || idx}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 border border-gray-100"
+                        className="flex items-start justify-between gap-3 p-2 rounded-lg bg-gray-50 border border-gray-100"
                       >
-                        <DummyAvatar initial={getInitial(m.name, m.email)} />
-                        <span className="font-medium text-gray-700">
-                          {m.name}
-                        </span>
-                        <span className="text-xs text-gray-400">{m.email}</span>
+                        <div className="flex items-start gap-3">
+                          <DummyAvatar
+                            initial={getInitial(m.username, m.email)}
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-700">
+                              {m.username}
+                            </span>
+                            {m.admin && (
+                              <span className="text-xs text-blue-500 font-semibold">
+                                Admin
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {m.email}
+                            </span>
+                          </div>
+                        </div>
+
+                        {!m.admin && (
+                          <button
+                            onClick={(e) => {
+                              handleRemoveBoardMember(boardId, m.id);
+                            }}
+                            className="stroke-black hover:scale-110 transition"
+                          >
+                            <TrashIcon />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>

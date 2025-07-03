@@ -22,18 +22,26 @@ const navLinks = [
   { name: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
   { name: "Boards", link: "/boards", icon: <BoardIcon /> },
   { name: "Chats", link: "/chats", icon: <ChatIcon /> },
-  { name: "Workspaces", link: "/workspaces", icon: <WorkspaceIcon /> },
-  // { name: "Inbox", link: "/inbox", icon: <InboxIcon /> },
-  // { name: "Tasks", link: "/tasks", icon: <TaskIcon /> },
+  { name: "Workspaces", link: "/workspaces", icon: <WorkspaceIcon /> }
 ];
 
 const SharedLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { username, users } = UseAuthContext();
+  const { username, users, logoutUser } = UseAuthContext();
   const { showBoardForm, setShowBoardForm } = UseGlobalContext();
 
   const mainUser = users.filter((user) => user.admin === true)[0];
+
+  
+  const handleLogout = async () => {
+    const result = await logoutUser();
+    if (result.success) {
+      navigate("/login");
+    } else {
+      alert("Logout failed");
+    }
+  };
 
   return (
     <div className="flex h-screen bg-[#F6F8FA]">
@@ -41,7 +49,7 @@ const SharedLayout = ({ children }) => {
         <div>
           <div className="flex items-center gap-2 mb-8 mt-3">
             <ConnectDeskLogo className="w-15 h-15" />
-            <h2 className="font-bold text-2xl text-blue-800">ConnectDesk</h2>
+            <h2 className="font-bold text-2xl text-blue-800 cursor-pointer select-none " onClick={()=>navigate('/dashboard')}>ConnectDesk</h2>
           </div>
           <nav>
             <ul className="flex flex-col gap-3">
@@ -50,7 +58,7 @@ const SharedLayout = ({ children }) => {
                 return (
                   <li
                     key={item.name}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all select-none ${
                       isActive
                         ? "bg-blue-50 text-blue-700 font-bold"
                         : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
@@ -91,7 +99,7 @@ const SharedLayout = ({ children }) => {
             </button>
             <button
               className="flex items-center gap-2 text-gray-500 hover:text-red-700"
-              onClick={() => navigate("/logout")}
+              onClick={handleLogout}
             >
               <LogoutIcon fontSize="small" />
               <span className="text-xs">Logout</span>
@@ -100,7 +108,7 @@ const SharedLayout = ({ children }) => {
         </div>
       </aside>
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-y-auto">{children}</main>
+      <main className="flex-1 flex flex-col overflow-y-auto ">{children}</main>
     </div>
   );
 };

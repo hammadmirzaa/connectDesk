@@ -8,8 +8,7 @@ export const WorkspaceProvider = ({ children }) => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const [workspaces, setWorkspaces] = useState([]);
-  const [activities, setActivities] = useState([])
-
+  const [activities, setActivities] = useState([]);
 
   // Fetch workspaces
   const fetchWorkspaces = async () => {
@@ -27,7 +26,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Create a new workspace
   const createWorkspace = async (name, description, memberIds) => {
     const token = Cookies.get("access_token");
-    const res = await fetch(`${apiUrl}/workspaces/`, {
+    const res = await fetch(`${apiUrl}/workspaces/create/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -37,35 +36,69 @@ export const WorkspaceProvider = ({ children }) => {
     });
     const newWorkspace = await res.json();
     setWorkspaces((prev) => [...prev, newWorkspace]); 
+    fetchWorkspaces();
     return newWorkspace;
   };
 
-  // At the top, add this to your WorkspaceProvider:
-const fetchWorkspaceActivity = async (workspaceId) => {
-  const token = Cookies.get("access_token");
-  const res = await fetch(
-    `${apiUrl}/workspaces/${workspaceId}/activity/`,
-    {
+  // Fetch activity for a workspace
+  const fetchWorkspaceActivity = async (workspaceId) => {
+    const token = Cookies.get("access_token");
+    const res = await fetch(`${apiUrl}/workspaces/${workspaceId}/activity/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+    });
+    if (!res.ok) throw new Error("Failed to fetch activity");
+    const data = await res.json();
+    setActivities(data);
+    return data;
+  };
+
+// Add member to workspace
+const addMemberToWorkspace = async (workspaceId, userId) => {
+  const token = Cookies.get("access_token");
+  const res = await fetch(`${apiUrl}/workspaces/${workspaceId}/add-member/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ user_id: userId }),
+  });
+  if (!res.ok) throw new Error("Failed to add member");
+  await fetchWorkspaces(); // Refresh
+};
+
+// Remove member from workspace
+const removeMemberFromWorkspace = async (workspaceId, userId) => {
+  const token = Cookies.get("access_token");
+  const res = await fetch(
+    `${apiUrl}/workspaces/${workspaceId}/remove-member/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ user_id: userId }),
     }
   );
-  if (!res.ok) throw new Error("Failed to fetch activity");
-  const data = await res.json();
-  setActivities(data)
-  return data; // Array of activities
+  if (!res.ok) throw new Error("Failed to remove member");
+  await fetchWorkspaces(); // Refresh
 };
+
 
 
   return (
     <WorkspaceContext.Provider
       value={{
         workspaces,
-        fetchWorkspaceActivity,
+        activities,
         fetchWorkspaces,
         createWorkspace,
-        activities,
+        fetchWorkspaceActivity,
+        addMemberToWorkspace,
+        removeMemberFromWorkspace,
       }}
     >
       {children}

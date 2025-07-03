@@ -6,20 +6,25 @@ import { UseBoardsContext } from "../../../context/BoardsContext";
 
 const Boards = () => {
   const [showArrows, setShowArrows] = useState(false);
-  const {
-    showBoardForm,
-    setShowBoardForm,
-  } = UseGlobalContext();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { showBoardForm, setShowBoardForm } = UseGlobalContext();
   const { boards } = UseBoardsContext();
+
+  const filteredBoards = boards.filter((board) =>
+    board.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <SharedLayout>
-      <div className="bg-[#ffffff] min-h-screen py-10">
+      <div className=" min-h-screen py-10">
         <div className="max-w-5xl mx-auto pb-8 px-2">
           <div className="relative w-full">
             <input
               type="text"
               placeholder="Search boards..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12 transition"
             />
           </div>
@@ -27,8 +32,12 @@ const Boards = () => {
 
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10 mb-12">
           <div className="flex-1 flex flex-col justify-center">
-            <h2 className="font-semibold text-xl mb-2 text-gray-800">Getting started with boards</h2>
-            <p className="text-gray-500 mb-3">Just a few steps to supercharge your productivity!</p>
+            <h2 className="font-semibold text-xl mb-2 text-gray-800">
+              Getting started with boards
+            </h2>
+            <p className="text-gray-500 mb-3">
+              Just a few steps to supercharge your productivity!
+            </p>
             <ul className="list-disc ml-6 text-gray-700 text-sm space-y-1">
               <li>Create a board</li>
               <li>Add members</li>
@@ -41,7 +50,7 @@ const Boards = () => {
               <iframe
                 width="100%"
                 height="240"
-                src="https://www.youtube.com/embed/xhuA3wCg06E" 
+                src="https://www.youtube.com/embed/xhuA3wCg06E"
                 title="Getting Started With Boards"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -58,15 +67,19 @@ const Boards = () => {
             className="w-48 h-28 border-2 border-dashed rounded-xl bg-gradient-to-tr from-gray-200 via-gray-100 to-gray-200 flex flex-col items-center justify-center text-5xl text-gray-400 hover:bg-gray-300 hover:text-blue-500 hover:border-blue-400 transition-shadow shadow-sm mb-6 group relative"
             onClick={() => setShowBoardForm(true)}
           >
-            <span className="transition-transform group-hover:scale-110">+</span>
-            <span className="absolute bottom-3 text-xs text-gray-500 group-hover:text-blue-600 transition">Create Board</span>
+            <span className="transition-transform group-hover:scale-110">
+              +
+            </span>
+            <span className="absolute bottom-3 text-xs text-gray-500 group-hover:text-blue-600 transition">
+              Create Board
+            </span>
           </button>
         </div>
 
         <div className="max-w-5xl mx-auto w-full mb-8">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold text-base text-gray-700">Recent Boards</h3>
-            {boards.length > 3 && (
+            {filteredBoards.length > 3 && (
               <button
                 onClick={() => setShowArrows(!showArrows)}
                 className="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm shadow hover:bg-blue-600 transition"
@@ -75,9 +88,14 @@ const Boards = () => {
               </button>
             )}
           </div>
-          <CardCarousel boards={boards} showArrows={showArrows} />
-          {boards.length === 0 && (
-            <div className="text-center text-gray-400 text-sm py-8">No boards yet. Click + to add your first board!</div>
+          {filteredBoards.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm py-8">
+              {boards && boards.length === 0
+                ? "No boards yet. Click + to add your first board!"
+                : "No boards found"}
+            </div>
+          ) : (
+            <CardCarousel boards={filteredBoards} showArrows={showArrows} />
           )}
         </div>
 
@@ -90,7 +108,9 @@ const Boards = () => {
           </div>
           <div className="w-full max-w-5xl">
             {boards.length === 0 ? (
-              <div className="text-center text-gray-400 text-base py-10">No boards to show. Start by creating one!</div>
+              <div className="text-center text-gray-400 text-base py-10">
+                No boards to show. Start by creating one!
+              </div>
             ) : (
               boards.map((board, index) => (
                 <div

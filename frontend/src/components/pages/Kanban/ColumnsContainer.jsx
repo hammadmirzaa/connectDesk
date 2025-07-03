@@ -150,7 +150,7 @@ function ColumnsContainer({
           flex gap-2 items-center
           bg-white
           border border-white/10 rounded-2xl px-4 py-2 mx-2 mb-3
-          text-black hover:bg-white/10 active:bg-black transition
+          text-black hover:bg-white/10 transition
           font-medium
         "
           onClick={() => createTask(column.id)}
