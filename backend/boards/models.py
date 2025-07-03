@@ -48,10 +48,12 @@ class Column(models.Model):
     class Meta:
         ordering = ['position']  # Ensure columns are ordered by position
     def save(self, *args, **kwargs):
-        if self.pk:
+        if self.pk and Column.objects.filter(pk=self.pk).exists():
             old = Column.objects.get(pk=self.pk)
-            self._previous_title = old.title
+            # You can compare or use `old` here
+            # e.g., if old.name != self.name: do_something()
         super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.title
