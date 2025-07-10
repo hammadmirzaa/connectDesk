@@ -29,7 +29,9 @@ SECRET_KEY = 'django-insecure-1^%qlk_)_h1d074$m(aafxiz!w08te@qnuzh8e9@h&q#0#&1#_
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "https://connectdesk.onrender.com/"
+    "connectdesk.onrender.com",
+    "localhost", 
+    "127.0.0.1",  
 ]
 
 import os
