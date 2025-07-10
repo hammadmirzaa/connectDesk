@@ -30,20 +30,50 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+import os
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        #  'OPTIONS': {
-        #     'charset': 'utf8mb4',  
-        # },
+if os.environ.get("RENDER", None):
+    # On Render: use Postgres
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    # Local: use MySQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'connectDesk',
+            'USER': 'root',
+            'PASSWORD': '1234',
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'OPTIONS': {
+            'charset': 'utf8mb4',  
+        },
+        }
+    }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv('DB_ENGINE'),
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#         #  'OPTIONS': {
+#         #     'charset': 'utf8mb4',  
+#         # },
+#     }
+# }
 
 
 # Application definition
