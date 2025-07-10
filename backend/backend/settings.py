@@ -28,7 +28,9 @@ SECRET_KEY = 'django-insecure-1^%qlk_)_h1d074$m(aafxiz!w08te@qnuzh8e9@h&q#0#&1#_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "https://connectdesk.onrender.com/"
+]
 
 import os
 
@@ -198,7 +200,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+
 ]
 
 
