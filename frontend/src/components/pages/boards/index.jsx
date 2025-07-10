@@ -112,7 +112,7 @@ const Boards = () => {
                 No boards to show. Start by creating one!
               </div>
             ) : (
-              boards.map((board, index) => (
+              boards?.map((board, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between border border-gray-200 rounded-lg bg-white mb-3 px-4 py-3 shadow-sm hover:shadow transition group"

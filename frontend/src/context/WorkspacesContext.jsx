@@ -13,7 +13,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Fetch workspaces
   const fetchWorkspaces = async () => {
     const token = Cookies.get("access_token");
-    const res = await fetch(`${apiUrl}/workspaces/`, {
+    const res = await fetch(`${apiUrl}/api/workspaces/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -26,7 +26,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Create a new workspace
   const createWorkspace = async (name, description, memberIds) => {
     const token = Cookies.get("access_token");
-    const res = await fetch(`${apiUrl}/workspaces/create/`, {
+    const res = await fetch(`${apiUrl}/api/workspaces/create/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Fetch activity for a workspace
   const fetchWorkspaceActivity = async (workspaceId) => {
     const token = Cookies.get("access_token");
-    const res = await fetch(`${apiUrl}/workspaces/${workspaceId}/activity/`, {
+    const res = await fetch(`${apiUrl}/api/workspaces/${workspaceId}/activity/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -57,7 +57,7 @@ export const WorkspaceProvider = ({ children }) => {
 // Add member to workspace
 const addMemberToWorkspace = async (workspaceId, userId) => {
   const token = Cookies.get("access_token");
-  const res = await fetch(`${apiUrl}/workspaces/${workspaceId}/add-member/`, {
+  const res = await fetch(`${apiUrl}/api/workspaces/${workspaceId}/add-member/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -73,7 +73,7 @@ const addMemberToWorkspace = async (workspaceId, userId) => {
 const removeMemberFromWorkspace = async (workspaceId, userId) => {
   const token = Cookies.get("access_token");
   const res = await fetch(
-    `${apiUrl}/workspaces/${workspaceId}/remove-member/`,
+    `${apiUrl}/api/workspaces/${workspaceId}/remove-member/`,
     {
       method: "POST",
       headers: {

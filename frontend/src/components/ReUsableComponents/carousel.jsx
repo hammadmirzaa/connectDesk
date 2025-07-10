@@ -24,7 +24,7 @@ const CardCarousel = ({boards, showArrows}) => {
           autoPlay={false}
           containerClass="py-5"
         >
-          {boards.map((board, index) => (
+          {boards?.map((board, index) => (
             <div
               key={index}
               className="w-[85%]  h-auto border relative rounded-lg cursor-pointer"

@@ -56,7 +56,7 @@ export default function ChatbotWidget() {
     try {
       const token = Cookies.get("access_token");
 
-      const response = await fetch(`${apiUrl}/chatbot/message/`, {
+      const response = await fetch(`${apiUrl}/api/chatbot/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

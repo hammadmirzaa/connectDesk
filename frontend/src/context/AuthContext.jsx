@@ -10,10 +10,11 @@ export const AuthProvider = ({ children }) => {
   const [username, setUsername] = useState("");
   const [users, setUsers] = useState([]);
   const token = Cookies.get("access_token");
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const loginUser = async (username, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/users/login/", {
+      const response = await fetch(`${apiUrl}/users/login/`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (full_name, username, email, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/users/signup/", {
+      const response = await fetch(`${apiUrl}/users/signup/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchAllUsers = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/users/users/", {
+      const response = await fetch(`${apiUrl}/users/users/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -94,77 +95,90 @@ export const AuthProvider = ({ children }) => {
 
   // Inside AuthProvider in AuthContext.js
 
-const updateProfile = async (full_name, username, email) => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/users/update-profile/", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-      body: JSON.stringify({ full_name, username, email }),
-    });
+  const updateProfile = async (full_name, username, email) => {
+    try {
+      const response = await fetch(
+        `${apiUrl}/users/update-profile/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: JSON.stringify({ full_name, username, email }),
+        }
+      );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(JSON.stringify(errorData));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(JSON.stringify(errorData));
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error("Profile update error:", error.message);
+      return { success: false, error: error.message };
     }
+  };
 
-    const data = await response.json();
-    return { success: true, data };
-  } catch (error) {
-    console.error("Profile update error:", error.message);
-    return { success: false, error: error.message };
-  }
-};
+  const changePassword = async (
+    currentPassword,
+    newPassword,
+    confirmPassword
+  ) => {
+    try {
+      const response = await fetch(
+        `${apiUrl}/users/change-password/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            confirm_password: confirmPassword,
+          }),
+        }
+      );
 
-const changePassword = async (currentPassword, newPassword, confirmPassword) => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/users/change-password/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword, confirm_password: confirmPassword }),
-    });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(JSON.stringify(errorData));
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(JSON.stringify(errorData));
+      return { success: true };
+    } catch (error) {
+      console.error("Password change error:", error.message);
+      return { success: false, error: error.message };
     }
+  };
 
-    return { success: true };
-  } catch (error) {
-    console.error("Password change error:", error.message);
-    return { success: false, error: error.message };
-  }
-};
+  const logoutUser = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/users/logout/`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-const logoutUser = async () => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/users/logout/", {
-      method: "POST",
-      credentials: "include", 
-    });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Logout failed");
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Logout failed");
+      Cookies.remove("access_token");
+      Cookies.remove("refresh_token");
+
+      setUser(null);
+      setUsername("");
+      return { success: true };
+    } catch (error) {
+      console.error("Logout error:", error.message);
+      return { success: false, error: error.message };
     }
-
-    Cookies.remove("access_token");
-    Cookies.remove("refresh_token");
-
-    setUser(null);
-    setUsername("");
-    return { success: true };
-  } catch (error) {
-    console.error("Logout error:", error.message);
-    return { success: false, error: error.message };
-  }
-};
-
+  };
 
   useEffect(() => {
     if (token) {
@@ -174,7 +188,17 @@ const logoutUser = async () => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loginUser, registerUser, username, users, fetchAllUsers, changePassword, updateProfile, logoutUser  }}
+      value={{
+        user,
+        loginUser,
+        registerUser,
+        username,
+        users,
+        fetchAllUsers,
+        changePassword,
+        updateProfile,
+        logoutUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

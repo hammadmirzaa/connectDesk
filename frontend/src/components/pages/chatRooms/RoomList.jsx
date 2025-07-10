@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Plus, Search } from "lucide-react";
-import Cookies from "js-cookie";
-const API_URL = "http://127.0.0.1:8000/api/rooms";
+import { useRoomContext } from "../../../context/RoomContext";
 
 export default function RoomList({ onSelectRoom, onCreate }) {
-  const [rooms, setRooms] = useState([]);
+  const { rooms, fetchRooms } = useRoomContext();
+
   useEffect(() => {
-    const token = Cookies.get("access_token");
-    fetch(`${API_URL}/my-rooms`, {
-      headers: { Authorization: token ? `Bearer ${token}` : undefined },
-    })
-      .then((r) => r.json())
-      .then(setRooms);
-  }, [onCreate]);
+    fetchRooms();
+  }, [fetchRooms, onCreate]);
 
   return (
     <aside className="w-[330px] border-r border-gray-200 bg-white flex flex-col">

@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { UseAuthContext } from "../../../context/AuthContext";
-import { UseBoardsContext } from "../../../context/BoardsContext";
 import { X } from "lucide-react";
-import Cookies from "js-cookie";
-const API_URL = "http://127.0.0.1:8000/api";
+import { UseAuthContext } from "../../../context/AuthContext";
+import { useRoomContext } from "../../../context/RoomContext";
 
 export default function CreateRoomModal({ onClose, onCreated, room }) {
   const { users, user } = UseAuthContext();
-  const token = Cookies.get("access_token");
+  const { createOrUpdateRoom } = useRoomContext();
   const [name, setName] = useState("");
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
@@ -15,35 +13,18 @@ export default function CreateRoomModal({ onClose, onCreated, room }) {
   const handleCreate = async (e) => {
     e.preventDefault();
     setError("");
-    const token = Cookies.get("access_token");
-
     try {
-      let url, method, body;
       if (room) {
-        // Add members to existing room
-        url = `${API_URL}/rooms/${room.id}/add`;
-        method = "POST";
-        body = JSON.stringify({
+        await createOrUpdateRoom({
+          roomId: room.id,
           members: selected.map((u) => u.username),
         });
       } else {
-        // Create new room
-        url = `${API_URL}/rooms/create`;
-        method = "POST";
-        body = JSON.stringify({
+        await createOrUpdateRoom({
           name,
           members: selected.map((u) => u.username),
         });
       }
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body,
-      });
-      if (!res.ok) throw new Error((await res.json()).error || "Failed");
       onCreated?.();
       onClose();
     } catch (e) {

@@ -1,0 +1,10 @@
+DB_USER=root
+DB_PASSWORD=1234
+DB_NAME=connectDesk
+DB_ENGINE=django.db.backends.mysql
+DB_HOST=localhost
+DB_PORT=3306
+
+REACT_APP_API_URL=http://localhost:8000/api
+API_BASE=http://localhost:8000/api
+COHERE_API_KEY=tCYz6qQrYbHADcOxrlUqx9QZlxtmWQ4JOdl1N673

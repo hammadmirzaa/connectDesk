@@ -99,7 +99,7 @@ const BoardNavbar = ({ savedBoards }) => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `${apiUrl}/boards/${boardId}/invite-member/`,
+        `${apiUrl}/api/boards/${boardId}/invite-member/`,
         {
           method: "POST",
           headers: {
@@ -133,7 +133,7 @@ const BoardNavbar = ({ savedBoards }) => {
 
     const token = Cookies.get("access_token");
     try {
-      const response = await fetch(`${apiUrl}/boards/${boardId}/add-member/`, {
+      const response = await fetch(`${apiUrl}/api/boards/${boardId}/add-member/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

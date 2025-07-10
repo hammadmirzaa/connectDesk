@@ -22,7 +22,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
   const loadBoards = async () => {
   const token = Cookies.get("access_token");
     try {
-      const res = await fetch(`${apiUrl}/boards/`, {
+      const res = await fetch(`${apiUrl}/api/boards/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
   const token = Cookies.get("access_token");
 
     const isUpdate = !!board.id;
-    const url = `${apiUrl}/boards/${
+    const url = `${apiUrl}/api/boards/${
       isUpdate ? board.id + "/" : ""
     }`;
 
@@ -78,7 +78,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch(`${apiUrl}/columns/`, {
+      const res = await fetch(`${apiUrl}/api/columns/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,7 +100,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
 
     try {
       const res = await fetch(
-        `${apiUrl}/columns/${column.id}/`,
+        `${apiUrl}/api/columns/${column.id}/`,
         {
           method: "PATCH",
           headers: {
@@ -123,7 +123,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch(`${apiUrl}/tasks/${task.id}/`, {
+      const res = await fetch(`${apiUrl}/api/tasks/${task.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +142,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
 
   const deleteColumnApi = async (columnId) => {
     try {
-      await fetch(`${apiUrl}/columns/${columnId}/`, {
+      await fetch(`${apiUrl}/api/columns/${columnId}/`, {
         method: "DELETE",
       });
       await loadBoards();
@@ -155,7 +155,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
   const token = Cookies.get("access_token");
 
     try {
-      const res = await fetch(`${apiUrl}/tasks/`, {
+      const res = await fetch(`${apiUrl}/api/tasks/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +175,7 @@ console.log("API URL:", process.env.REACT_APP_API_URL);
 const deleteTaskApi = async (taskId) => {
   try {
 
-    const response = await fetch(`${apiUrl}/tasks/${taskId}/`, {
+    const response = await fetch(`${apiUrl}/api/tasks/${taskId}/`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -202,7 +202,7 @@ const deleteTaskApi = async (taskId) => {
   }, [token]);
 
     const updateColumnPositionApi = async (columns, boardId) => {
-    const response = await fetch(`${apiUrl}/boards/${boardId}/update-column-positions/`, {
+    const response = await fetch(`${apiUrl}/api/boards/${boardId}/update-column-positions/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ async function updateTaskPositionApi(updatedTasks, columnId) {
 
     console.log("Sending task update:", payload);
     
-    const response = await fetch(`${apiUrl}/columns/${columnId}/update-task-positions/`, {
+    const response = await fetch(`${apiUrl}/api/columns/${columnId}/update-task-positions/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -250,7 +250,7 @@ async function updateTaskPositionApi(updatedTasks, columnId) {
 const handleRemoveMember = async (boardId, userId) => {
   console.log("Removing member:", userId);
   try {
-    const response = await fetch(`${apiUrl}/boards/${boardId}/remove-member/`, {
+    const response = await fetch(`${apiUrl}/api/boards/${boardId}/remove-member/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

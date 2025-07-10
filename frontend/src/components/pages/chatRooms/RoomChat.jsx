@@ -4,88 +4,68 @@ import {
   Video,
   Phone,
   MoreVertical,
-  Smile,
-  Paperclip,
-  Send,
 } from "lucide-react";
 import { UseAuthContext } from "../../../context/AuthContext";
-import Cookies from "js-cookie";
 import Pusher from "pusher-js";
 import CreateRoomModal from "./CreateRoomModal";
 import ChatInput from "./ChatInput";
 import { MessageFileBubble } from "./MessageFile";
-
-const API_URL = "http://127.0.0.1:8000/api";
+import { useRoomContext } from "../../../context/RoomContext";
 
 export default function RoomChat({ room }) {
   const { user, users } = UseAuthContext();
-  const [messages, setMessages] = useState([]);
+  const {
+    fetchMessages,
+    fetchMembers,
+    sendMessage,
+    roomMessages,
+    roomMembers,
+    appendMessage,
+  } = useRoomContext();
+
   const [input, setInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [file, setFile] = useState(null);
-  const [members, setMembers] = useState([]);
   const [showMembers, setShowMembers] = useState(false);
 
   const endRef = useRef();
 
-  const currentUser = users.filter((user) => user.admin === true)[0];
-  console.log("currentUser:", currentUser);
+  const currentUser = users.find((u) => u.admin === true);
 
   // Fetch messages when room changes
   useEffect(() => {
-    if (!room) return;
-    const token = Cookies.get("access_token");
-    fetch(`${API_URL}/rooms/${room.id}/messages`, {
-      headers: { Authorization: token ? `Bearer ${token}` : undefined },
-    })
-      .then((r) => r.json())
-      .then(setMessages);
-  }, [room]);
+    if (room) fetchMessages(room.id);
+  }, [room, fetchMessages]);
 
+  // Fetch members when room changes
   useEffect(() => {
-    if (!room) return;
-    const token = Cookies.get("access_token");
-    fetch(`${API_URL}/rooms/${room.id}/members`, {
-      headers: { Authorization: token ? `Bearer ${token}` : undefined },
-    })
-      .then((r) => r.json())
-      .then(setMembers);
-  }, [room]);
+    if (room) fetchMembers(room.id);
+  }, [room, fetchMembers]);
 
   // Real-time updates via Pusher
   useEffect(() => {
     if (!room) return;
     const pusher = new Pusher("575b2db9014b7654f685", { cluster: "eu" });
     const channel = pusher.subscribe(`room_${room.id}`);
-    const handler = (data) => setMessages((prev) => [...prev, data]);
+    const handler = (data) => appendMessage(room.id, data);
     channel.bind("message", handler);
     return () => {
       channel.unbind("message", handler);
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, [room]);
+  }, [room, appendMessage]);
 
   // Auto-scroll to bottom
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [room, roomMessages]);
 
-  const sendMessage = async (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim() && !file) return; // block empty sends
-    const formData = new FormData();
-    formData.append("message", input);
-    if (file) formData.append("file", file);
-    const token = Cookies.get("access_token");
-    await fetch(`${API_URL}/rooms/${room.id}/send`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    if (!input.trim() && !file) return;
+    await sendMessage(room.id, { message: input, file });
     setInput("");
     setFile(null);
   };
@@ -98,6 +78,10 @@ export default function RoomChat({ room }) {
         </div>
       </div>
     );
+
+  // These are now provided by context
+  const messages = roomMessages[room.id] || [];
+  const members = roomMembers[room.id] || [];
 
   return (
     <div className="flex flex-col flex-1 h-full">
@@ -115,14 +99,12 @@ export default function RoomChat({ room }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-        {/*
-          <button className="p-2 hover:bg-gray-100 rounded">
+          {/* <button className="p-2 hover:bg-gray-100 rounded">
             <Phone size={18} />
           </button>
           <button className="p-2 hover:bg-gray-100 rounded">
             <Video size={18} />
-          </button>
-          */}
+          </button> */}
           <button
             className="p-2 hover:bg-gray-100 rounded"
             onClick={() => setShowMembers((show) => !show)}
@@ -148,7 +130,6 @@ export default function RoomChat({ room }) {
                   <li className="px-4 py-2 text-gray-400">No members</li>
                 )}
                 {members.map((member, idx) => {
-                  // Create initials: First 2 letters of the username, uppercase
                   const initials = member.username
                     .split(" ")
                     .map((word) => word[0])
@@ -160,7 +141,6 @@ export default function RoomChat({ room }) {
                       key={member.id || idx}
                       className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
                     >
-                      {/* Initials in a gray circle */}
                       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-black">
                         {initials}
                       </div>
@@ -220,7 +200,6 @@ export default function RoomChat({ room }) {
         {messages?.map((msg, i) => {
           const isCurrentUser = msg.sender === currentUser?.username;
           const name = isCurrentUser ? "You" : msg.sender;
-          // Get initials (first letter of each word, max 2)
           const initials = msg.sender
             ? msg.sender
                 .split(" ")
@@ -236,7 +215,6 @@ export default function RoomChat({ room }) {
                 isCurrentUser ? "justify-end" : "justify-start"
               } mb-2`}
             >
-              {/* Avatar on left for others, right for you */}
               {!isCurrentUser && (
                 <div className="flex flex-col items-center">
                   <div className="w-8 h-8 rounded-full bg-blue-200 text-[#1e40af] flex items-center justify-center font-bold mb-1">
@@ -270,7 +248,6 @@ export default function RoomChat({ room }) {
                 </div>
               )}
 
-              {/* Avatar on right for yourself */}
               {isCurrentUser && (
                 <div className="flex flex-col items-center">
                   <div className="w-8 h-8 rounded-full bg-purple-200 text-purple-900 flex items-center justify-center font-bold mb-1">
@@ -290,7 +267,7 @@ export default function RoomChat({ room }) {
       <ChatInput
         input={input}
         setInput={setInput}
-        sendMessage={sendMessage}
+        sendMessage={handleSendMessage}
         setFile={setFile}
         file={file}
       />

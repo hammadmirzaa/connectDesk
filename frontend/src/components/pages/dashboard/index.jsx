@@ -17,6 +17,8 @@ import { Link } from "react-router-dom";
 import SharedLayout from "../../navbar";
 import OnBoarding from "./OnBoarding";
 import ChatbotWidget from "../../chatbot/ChatBot";
+import { useRoomContext } from "../../../context/RoomContext";
+import { useWorkspace } from "../../../context/WorkspacesContext";
 
 const Dashboard = () => {
   const [showArrows, setShowArrows] = useState(false);
@@ -24,6 +26,8 @@ const Dashboard = () => {
   const [onboarded, setOnboarded] = useState(false);
   const { boards } = UseBoardsContext();
   const { username, fetchAllUsers, users } = UseAuthContext();
+  const {rooms} = useRoomContext();
+  const {workspaces} = useWorkspace();
   useEffect(() => {
     fetchAllUsers();
   }, []);
@@ -66,11 +70,11 @@ const Dashboard = () => {
   const stats = [
     {
       label: "Boards",
-      value: boards.length,
+      value: boards?.length,
       icon: <ViewKanbanIcon fontSize="small" />,
     },
-    { label: "Chats", value: 3, icon: <Chat fontSize="small" /> },
-    { label: "Teams", value: 1, icon: <Group fontSize="small" /> },
+    { label: "Chats", value: rooms?.length, icon: <Chat fontSize="small" /> },
+    { label: "Teams", value: workspaces?.length, icon: <Group fontSize="small" /> },
   ];
   const upcoming = [{ title: "Meeting", date: "June 17" }];
 
@@ -182,27 +186,19 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
-            {boards.length === 0 ? (
+            {rooms?.length === 0 ? (
               <div className="text-gray-400 text-sm text-center py-8">
                 No chats yet. Your recent chats will appear here when you start
                 collaborating!
               </div>
             ) : (
-              boards.map((board, index) => (
+              rooms?.map((board, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between bg-white rounded-md px-4 py-3 border border-gray-200 text-sm shadow-sm"
+                  className="flex items-center justify-between cursor-pointer bg-white rounded-md px-4 py-3 border border-gray-200 text-sm shadow-sm"
                 >
-                  <span>{board.title}</span>
-                  <span className="text-xs text-gray-500">
-                    {new Date(board.created_at)
-                      .toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
-                      .replace(",", "")}
-                  </span>
+                  <span>{board.name}</span>
+                  
                 </div>
               ))
             )}
