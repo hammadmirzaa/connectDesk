@@ -31,7 +31,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "connectdesk.onrender.com",
     "localhost", 
-    "127.0.0.1",  
+    "127.0.0.1",
+    "connect-desk-olive.vercel.app"
 ]
 
 import os
@@ -203,7 +204,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-
+    "https://connect-desk-olive.vercel.app/",
 ]
 
 
