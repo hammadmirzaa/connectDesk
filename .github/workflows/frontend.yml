@@ -1,0 +1,35 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Set the working directory to the frontend folder for all steps
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    # Step 1: Get the code from the repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js environment
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    # Step 3: Install the frontend dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Build the React application to check for errors
+    - name: Build application
+      run: npm run build
