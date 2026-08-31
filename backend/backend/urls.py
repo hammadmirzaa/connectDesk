@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
+    path('users/', include('users.urls')),       # kept for any direct access
+    path('api/users/', include('users.urls')),   # matches frontend api/users/* calls
     path('api/', include('boards.urls')),
     path('api/', include('chat.urls')),
     path('api/', include('workspaces.urls')),

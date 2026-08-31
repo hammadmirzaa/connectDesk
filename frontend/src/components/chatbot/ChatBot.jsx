@@ -56,7 +56,7 @@ export default function ChatbotWidget() {
     try {
       const token = Cookies.get("access_token");
 
-      const response = await fetch(`${apiUrl}/api/chatbot/message/`, {
+      const response = await fetch(`${apiUrl}/chatbot/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +129,7 @@ export default function ChatbotWidget() {
       {/* Chat Interface */}
       {isOpen && (
         <div className="fixed bottom-14 right-32 z-50 w-96 h-[500px] transition-all duration-300 transform animate-in slide-in-from-bottom-4">
-          <div className="h-full shadow-2xl border-0 bg-white rounded-2xl overflow-hidden backdrop-blur-sm">
+          <div className="flex flex-col h-full shadow-2xl border-0 bg-white rounded-2xl overflow-hidden backdrop-blur-sm">
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-5">
               <div className="flex items-center justify-between">
@@ -152,7 +152,7 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white h-80">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white min-h-0">
               {messages.map((message) => (
                 <div
                   key={message.id}

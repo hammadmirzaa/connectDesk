@@ -13,7 +13,7 @@ export function RoomProvider({ children }) {
 
   // Fetch rooms for user
   const fetchRooms = useCallback(async () => {
-    const res = await fetch(`${API_URL}/api/rooms/my-rooms`, {
+    const res = await fetch(`${API_URL}/rooms/my-rooms`, {
       headers: { Authorization: token ? `Bearer ${token}` : undefined },
     });
     const data = await res.json();
@@ -27,12 +27,12 @@ export function RoomProvider({ children }) {
       let url, method, body;
       if (roomId) {
         // Add members
-        url = `${API_URL}/api/rooms/${roomId}/add`;
+        url = `${API_URL}/rooms/${roomId}/add`;
         method = "POST";
         body = JSON.stringify({ members });
       } else {
         // Create new room
-        url = `${API_URL}/api/rooms/create`;
+        url = `${API_URL}/rooms/create`;
         method = "POST";
         body = JSON.stringify({ name, members });
       }
@@ -54,7 +54,7 @@ export function RoomProvider({ children }) {
   // Fetch room messages
   const fetchMessages = useCallback(
     async (roomId) => {
-      const res = await fetch(`${API_URL}/api/rooms/${roomId}/messages`, {
+      const res = await fetch(`${API_URL}/rooms/${roomId}/messages`, {
         headers: { Authorization: token ? `Bearer ${token}` : undefined },
       });
       const data = await res.json();
@@ -67,7 +67,7 @@ export function RoomProvider({ children }) {
   // Fetch room members
   const fetchMembers = useCallback(
     async (roomId) => {
-      const res = await fetch(`${API_URL}/api/rooms/${roomId}/members`, {
+      const res = await fetch(`${API_URL}/rooms/${roomId}/members`, {
         headers: { Authorization: token ? `Bearer ${token}` : undefined },
       });
       const data = await res.json();
@@ -83,7 +83,7 @@ export function RoomProvider({ children }) {
       const formData = new FormData();
       formData.append("message", message);
       if (file) formData.append("file", file);
-      await fetch(`${API_URL}/api/rooms/${roomId}/send`, {
+      await fetch(`${API_URL}/rooms/${roomId}/send`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
